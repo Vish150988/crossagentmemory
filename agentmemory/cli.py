@@ -13,9 +13,12 @@ from rich.console import Console
 from rich.table import Table
 
 from .core import DEFAULT_MEMORY_DIR, MemoryEngine, MemoryEntry
+from .decay import decay_confidence, reinforce_memory
 from .export import export_markdown
 from .hooks import install_hooks, uninstall_hooks
 from .recall import build_context_brief
+from .semantic import SemanticIndex
+from .summarize import summarize_project, summarize_session
 from .sync import sync_project
 
 console = Console()
@@ -256,6 +259,91 @@ def delete(project: str) -> None:
     engine = MemoryEngine()
     count = engine.delete_project(project)
     console.print(f"[red][DELETED][/red] {count} memories for project '{project}'")
+
+
+@main.command()
+@click.argument("query")
+@click.option("--project", "-p", help="Project name")
+@click.option("--limit", "-n", default=10, help="Number of results")
+def related(query: str, project: str | None, limit: int) -> None:
+    """Find memories semantically related to a query."""
+    project = project or _get_project()
+    engine = MemoryEngine()
+    index = SemanticIndex(engine, project)
+    results = index.search(query, top_k=limit)
+
+    if not results:
+        console.print(f"[yellow]No related memories found for '{query}'[/yellow]")
+        return
+
+    table = Table(title=f"Related to: {query}")
+    table.add_column("ID", style="dim", width=6)
+    table.add_column("Similarity", width=10)
+    table.add_column("Category", width=12)
+    table.add_column("Content")
+
+    for memory, score in results:
+        table.add_row(
+            str(memory.id),
+            f"{score:.2f}",
+            memory.category,
+            memory.content[:70] + ("..." if len(memory.content) > 70 else ""),
+        )
+
+    console.print(table)
+
+
+@main.command()
+@click.option("--project", "-p", help="Project name")
+@click.option("--session", "-s", help="Session ID to summarize")
+@click.option("--output", "-o", type=click.Path(), help="Output file")
+def summarize(project: str | None, session: str | None, output: str | None) -> None:
+    """Summarize memories (session or entire project)."""
+    project = project or _get_project()
+    engine = MemoryEngine()
+
+    if session:
+        text = summarize_session(engine, session, project)
+        title = f"Session: {session}"
+    else:
+        text = summarize_project(engine, project)
+        title = f"Project: {project}"
+
+    if output:
+        Path(output).write_text(text, encoding="utf-8")
+        console.print(f"[green][OK][/green] Summary written to {output}")
+    else:
+        console.print(f"\n[bold cyan]--- {title} ---[/bold cyan]\n")
+        console.print(text)
+
+
+@main.command()
+@click.argument("memory_id", type=int)
+@click.option("--boost", default=0.1, type=float, help="Confidence boost amount")
+def reinforce(memory_id: int, boost: float) -> None:
+    """Reinforce a memory (boost confidence)."""
+    engine = MemoryEngine()
+    if reinforce_memory(engine, memory_id, boost):
+        console.print(f"[green][OK][/green] Reinforced memory #{memory_id}")
+    else:
+        console.print(f"[red][ERROR][/red] Memory #{memory_id} not found")
+
+
+@main.command()
+@click.option("--project", "-p", help="Project name")
+@click.option("--half-life", default=30.0, help="Days for confidence to halve")
+@click.option("--dry-run", is_flag=True, help="Show what would change without updating")
+def decay(project: str | None, half_life: float, dry_run: bool) -> None:
+    """Decay old memory confidence."""
+    engine = MemoryEngine()
+    stats = decay_confidence(engine, project=project, half_life_days=half_life, dry_run=dry_run)
+
+    mode = "[DRY RUN] " if dry_run else ""
+    console.print(f"{mode}Memory decay complete:")
+    console.print(f"  Processed: {stats['total_processed']}")
+    console.print(f"  Updated: {stats['updated']}")
+    console.print(f"  Unchanged: {stats['unchanged']}")
+    console.print(f"  Archived (confidence < 0.1): {stats['archived']}")
 
 
 if __name__ == "__main__":
