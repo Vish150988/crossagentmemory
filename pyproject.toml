@@ -35,6 +35,9 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
 ]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
 
 [project.scripts]
 agentmemory = "agentmemory.cli:main"

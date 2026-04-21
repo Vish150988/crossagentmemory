@@ -271,11 +271,18 @@ def delete(project: str) -> None:
 @click.argument("query")
 @click.option("--project", "-p", help="Project name")
 @click.option("--limit", "-n", default=10, help="Number of results")
-def related(query: str, project: str | None, limit: int) -> None:
+@click.option(
+    "--backend",
+    "-b",
+    default="auto",
+    type=click.Choice(["auto", "tfidf", "sentence-transformers"]),
+    help="Semantic search backend",
+)
+def related(query: str, project: str | None, limit: int, backend: str) -> None:
     """Find memories semantically related to a query."""
     project = project or _get_project()
     engine = MemoryEngine()
-    index = SemanticIndex(engine, project)
+    index = SemanticIndex(engine, project, backend=backend)
     results = index.search(query, top_k=limit)
 
     if not results:

@@ -94,6 +94,22 @@ class MemoryEngine:
                 )
                 """
             )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS embeddings (
+                    memory_id INTEGER PRIMARY KEY,
+                    model_name TEXT NOT NULL,
+                    embedding_json TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (memory_id) REFERENCES memories(id) ON DELETE CASCADE
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_embeddings_model ON embeddings(model_name)
+                """
+            )
             conn.commit()
         finally:
             self._close(conn)
@@ -251,5 +267,46 @@ class MemoryEngine:
             conn.execute("DELETE FROM projects WHERE name = ?", (project,))
             conn.commit()
             return cursor.rowcount
+        finally:
+            self._close(conn)
+
+    def store_embedding(
+        self, memory_id: int, model_name: str, embedding: list[float]
+    ) -> None:
+        """Store a vector embedding for a memory."""
+        now = datetime.now(timezone.utc).isoformat()
+        conn = self._connection()
+        try:
+            conn.execute(
+                """
+                INSERT INTO embeddings (memory_id, model_name, embedding_json, created_at)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(memory_id) DO UPDATE SET
+                    model_name=excluded.model_name,
+                    embedding_json=excluded.embedding_json,
+                    created_at=excluded.created_at
+                """,
+                (memory_id, model_name, json.dumps(embedding), now),
+            )
+            conn.commit()
+        finally:
+            self._close(conn)
+
+    def get_embeddings(
+        self, project: str, model_name: str
+    ) -> list[tuple[int, list[float]]]:
+        """Retrieve all embeddings for a project matching a model."""
+        conn = self._connection()
+        try:
+            rows = conn.execute(
+                """
+                SELECT e.memory_id, e.embedding_json
+                FROM embeddings e
+                JOIN memories m ON e.memory_id = m.id
+                WHERE m.project = ? AND e.model_name = ?
+                """,
+                (project, model_name),
+            ).fetchall()
+            return [(row["memory_id"], json.loads(row["embedding_json"])) for row in rows]
         finally:
             self._close(conn)
