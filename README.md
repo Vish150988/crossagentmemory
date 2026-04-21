@@ -32,6 +32,10 @@ Every time you start a new session with Claude Code, Codex, or Cursor, your agen
 | **Memory reinforcement** | ✅ | Boost confidence when a memory is validated. |
 | **CLAUDE.md sync** | ✅ | Auto-generates `CLAUDE.md` from memory. Claude Code reads it automatically. |
 | **Git hooks** | ✅ | Auto-sync `CLAUDE.md` on every commit. |
+| **Auto-capture** | ✅ | Capture from git log, shell history, and Claude sessions automatically. |
+| **Team sync** | ✅ | Share memories via `.agent-memory/` folder in your repo. |
+| **MCP server** | ✅ | Expose AgentMemory as an MCP server for Cursor/Copilot/Claude. |
+| **Web dashboard** | ✅ | Browse, search, and manage memories in a local web UI. |
 
 ---
 
@@ -120,10 +124,24 @@ agentmemory reinforce <id>                # Boost memory confidence
 agentmemory decay                         # Apply confidence decay
 agentmemory decay --dry-run               # Preview decay
 
+# Auto-capture
+agentmemory capture-auto                  # Auto-capture from git + shell + Claude
+agentmemory capture-auto --dry-run        # Preview what would be captured
+agentmemory capture-auto --sources git    # Only capture from git log
+
 # Agent integration
 agentmemory load                          # Generate context brief
 agentmemory sync                          # Sync to CLAUDE.md
 agentmemory export                        # Export to markdown
+
+# Team sync
+agentmemory team export                   # Export memories to .agent-memory/
+agentmemory team import                   # Import team-shared memories
+agentmemory team status                   # Show team sync status
+
+# MCP server & dashboard
+agentmemory mcp                           # Start MCP server (stdio)
+agentmemory dashboard                     # Start web dashboard on :8745
 
 # Management
 agentmemory stats                         # Show statistics
@@ -139,13 +157,21 @@ agentmemory delete <project>              # Wipe project memory
 ```
 Your Terminal Agent
        │
-       ├──► agentmemory capture "..."  ──► SQLite (~/.agent-memory/memory.db)
+       ├──► agentmemory capture "..."   ──► SQLite (~/.agent-memory/memory.db)
+       │
+       ├──► agentmemory capture-auto    ──► Auto-import from git / shell / Claude
        │
        ├──► agentmemory related "..."   ──► TF-IDF + Cosine Similarity (numpy)
        │
        ├──► agentmemory load            ──► Markdown brief for agent context
        │
-       └──► agentmemory sync            ──► CLAUDE.md (auto-read by Claude Code)
+       ├──► agentmemory sync            ──► CLAUDE.md (auto-read by Claude Code)
+       │
+       ├──► agentmemory team export     ──► .agent-memory/ (git-shared)
+       │
+       ├──► agentmemory mcp             ──► MCP server for Cursor/Copilot/Claude
+       │
+       └──► agentmemory dashboard       ──► Web UI on http://localhost:8745
 ```
 
 **Storage:** Plain SQLite. Query it with any tool. Back it up. Version it.
@@ -194,10 +220,10 @@ Your Terminal Agent
 - [x] Semantic search (TF-IDF + cosine similarity)
 - [x] Auto-summarization
 - [x] Confidence decay & reinforcement
-- [ ] Auto-capture from agent sessions
-- [ ] Team sync (shared memory via git)
-- [ ] MCP server integration
-- [ ] Web dashboard
+- [x] Auto-capture from agent sessions
+- [x] Team sync (shared memory via git)
+- [x] MCP server integration
+- [x] Web dashboard
 
 ---
 

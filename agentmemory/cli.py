@@ -17,6 +17,7 @@ from .hooks import install_hooks, uninstall_hooks
 from .recall import build_context_brief
 from .semantic import SemanticIndex
 from .summarize import summarize_project, summarize_session
+from .team_sync import team_export, team_import, team_status
 
 console = Console()
 
@@ -48,7 +49,7 @@ def _get_project() -> str:
 
 
 @click.group()
-@click.version_option(version="0.1.0")
+@click.version_option(version="0.2.0")
 def main() -> None:
     """AgentMemory — Cross-agent memory layer for AI coding agents."""
     pass
@@ -167,6 +168,124 @@ def search(keyword: str, project: str | None, limit: int) -> None:
 
     for m in results:
         console.print(f"[bold]#{m.id}[/bold] [{m.category}] {m.content[:100]}")
+
+
+@main.group()
+def team() -> None:
+    """Team sync — share memories via git."""
+    pass
+
+
+@team.command("export")
+@click.option("--project", "-p", help="Project name")
+@click.option("--cwd", type=click.Path(), default=".", help="Project directory")
+def team_export_cmd(project: str | None, cwd: str) -> None:
+    """Export memories to .agent-memory/ for team sharing."""
+    project = project or _get_project()
+    path = team_export(project, cwd=Path(cwd))
+    console.print(f"[green][OK][/green] Exported team memory to [bold]{path}[/bold]")
+    console.print("[dim]Commit the .agent-memory/ folder to share with your team.[/dim]")
+
+
+@team.command("import")
+@click.option("--project", "-p", help="Project name")
+@click.option("--cwd", type=click.Path(), default=".", help="Project directory")
+@click.option("--dry-run", is_flag=True, help="Preview without importing")
+def team_import_cmd(project: str | None, cwd: str, dry_run: bool) -> None:
+    """Import team-shared memories from .agent-memory/."""
+    project = project or _get_project()
+    stats = team_import(project, cwd=Path(cwd), dry_run=dry_run)
+    mode = "[DRY RUN] " if dry_run else ""
+    console.print(f"{mode}[green][OK][/green] Team sync complete for [bold]{project}[/bold]")
+    console.print(f"  Files scanned: {stats['files']}")
+    console.print(f"  Imported: {stats['imported']}")
+    console.print(f"  Skipped (duplicates): {stats['skipped']}")
+
+
+@team.command("status")
+@click.option("--project", "-p", help="Project name")
+@click.option("--cwd", type=click.Path(), default=".", help="Project directory")
+def team_status_cmd(project: str | None, cwd: str) -> None:
+    """Show team sync status."""
+    project = project or _get_project()
+    info = team_status(project, cwd=Path(cwd))
+    console.print(f"[bold]Team Sync — {project}[/bold]\n")
+    console.print(f"Local memories: {info['local_memories']}")
+    console.print(f"Team folder: {info['team_folder']}")
+    console.print(f"Team folder exists: {'yes' if info['team_folder_exists'] else 'no'}")
+    console.print(f"Export files: {info['export_files']}")
+    if info['latest_export']:
+        console.print(f"Latest export: {info['latest_export']}")
+
+
+@main.command()
+@click.option("--project", "-p", help="Project name")
+@click.option(
+    "--sources",
+    "-s",
+    default="shell,git,claude",
+    help="Comma-separated sources: shell, git, claude",
+)
+@click.option("--dry-run", is_flag=True, help="Preview without storing")
+def capture_auto(project: str | None, sources: str, dry_run: bool) -> None:
+    """Auto-capture memories from shell history, git log, and Claude sessions."""
+    from .auto_capture import (
+        auto_capture_all,
+        capture_from_claude_logs,
+        capture_from_git_log,
+        capture_from_shell_history,
+    )
+
+    project = project or _get_project()
+    source_list = [s.strip() for s in sources.split(",")]
+
+    if dry_run:
+        entries: list = []
+        if "shell" in source_list:
+            entries.extend(capture_from_shell_history(project))
+        if "git" in source_list:
+            entries.extend(capture_from_git_log(project))
+        if "claude" in source_list:
+            entries.extend(capture_from_claude_logs(project))
+        console.print(f"[bold]Dry run — would capture {len(entries)} memories:[/bold]\n")
+        for e in entries[:10]:
+            console.print(f"  [{e.category}] {e.content[:80]}...")
+        if len(entries) > 10:
+            console.print(f"  ... and {len(entries) - 10} more")
+        return
+
+    counts = auto_capture_all(project, sources=source_list)
+    total = sum(counts.values())
+    console.print(f"[green][OK][/green] Auto-captured [bold]{total}[/bold] memories:")
+    for src, count in counts.items():
+        console.print(f"  {src}: {count}")
+
+
+@main.command()
+def mcp() -> None:
+    """Start the AgentMemory MCP server (stdio)."""
+    try:
+        from .mcp_server import main as mcp_main
+    except ImportError as e:
+        console.print(f"[red][ERROR][/red] {e}")
+        console.print("[dim]Install with: pip install fastmcp[/dim]")
+        raise click.Exit(1)
+    mcp_main()
+
+
+@main.command()
+@click.option("--host", default="127.0.0.1", help="Host to bind")
+@click.option("--port", default=8745, help="Port to bind")
+def dashboard(host: str, port: int) -> None:
+    """Start the AgentMemory web dashboard."""
+    try:
+        from .dashboard import run_dashboard
+    except ImportError as e:
+        console.print(f"[red][ERROR][/red] {e}")
+        console.print("[dim]Install with: pip install fastapi uvicorn[/dim]")
+        raise click.Exit(1)
+    console.print(f"[green][OK][/green] Starting dashboard at http://{host}:{port}")
+    run_dashboard(host=host, port=port)
 
 
 @main.command()
