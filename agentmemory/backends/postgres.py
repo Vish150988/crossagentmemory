@@ -41,12 +41,31 @@ class PostgresBackend(MemoryBackend):
             "DATABASE_URL",
             "postgresql://localhost/agentmemory",
         )
+        self._conn = None
 
     def _connection(self):
-        return psycopg.connect(self.dsn)
+        if self._conn is not None:
+            try:
+                # Quick health check: if closed, discard
+                if not self._conn.closed:
+                    return self._conn
+            except Exception:
+                pass
+            self._conn = None
+        self._conn = psycopg.connect(self.dsn)
+        return self._conn
+
+    def close(self) -> None:
+        """Close the underlying cached connection."""
+        if self._conn is not None:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+            self._conn = None
 
     def init(self) -> None:
-        conn = self._connection()
+        conn = psycopg.connect(self.dsn)
         try:
             with conn.cursor() as cur:
                 cur.execute(
@@ -107,6 +126,10 @@ class PostgresBackend(MemoryBackend):
         finally:
             conn.close()
 
+        from .migrations import run_migrations
+
+        run_migrations(self)
+
     def store(self, entry: MemoryEntry) -> int:
         conn = self._connection()
         try:
@@ -135,8 +158,10 @@ class PostgresBackend(MemoryBackend):
                 result = cur.fetchone()
                 conn.commit()
                 return result[0] if result else 0
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def recall(
         self,
@@ -168,8 +193,10 @@ class PostgresBackend(MemoryBackend):
                 rows = cur.fetchall()
                 cols = [desc[0] for desc in cur.description]
                 return [MemoryEntry(**dict(zip(cols, row))) for row in rows]
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def search(
         self,
@@ -194,8 +221,10 @@ class PostgresBackend(MemoryBackend):
                 rows = cur.fetchall()
                 cols = [desc[0] for desc in cur.description]
                 return [MemoryEntry(**dict(zip(cols, row))) for row in rows]
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def get_project_context(self, project: str) -> dict[str, Any]:
         conn = self._connection()
@@ -208,8 +237,10 @@ class PostgresBackend(MemoryBackend):
                 if row:
                     return row[0] if isinstance(row[0], dict) else json.loads(row[0])
                 return {}
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def get_project_description(self, project: str) -> str:
         conn = self._connection()
@@ -220,8 +251,10 @@ class PostgresBackend(MemoryBackend):
                 )
                 row = cur.fetchone()
                 return row[0] if row and row[0] else ""
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def set_project_context(
         self,
@@ -245,8 +278,10 @@ class PostgresBackend(MemoryBackend):
                     (project, description, now, now, json.dumps(context)),
                 )
             conn.commit()
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def stats(self) -> dict[str, Any]:
         conn = self._connection()
@@ -272,8 +307,10 @@ class PostgresBackend(MemoryBackend):
                     "sessions": sessions,
                     "by_category": categories,
                 }
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def delete_project(self, project: str) -> int:
         conn = self._connection()
@@ -284,8 +321,10 @@ class PostgresBackend(MemoryBackend):
                 cur.execute("DELETE FROM projects WHERE name = %s", (project,))
             conn.commit()
             return deleted
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def store_embedding(
         self, memory_id: int, model_name: str, embedding: list[float]
@@ -306,8 +345,10 @@ class PostgresBackend(MemoryBackend):
                     (memory_id, model_name, json.dumps(embedding), now),
                 )
             conn.commit()
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def get_embeddings(
         self, project: str, model_name: str
@@ -325,8 +366,10 @@ class PostgresBackend(MemoryBackend):
                     (project, model_name),
                 )
                 return [(row[0], json.loads(row[1])) for row in cur.fetchall()]
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def list_projects(self) -> list[str]:
         conn = self._connection()
@@ -336,8 +379,10 @@ class PostgresBackend(MemoryBackend):
                     "SELECT DISTINCT project FROM memories ORDER BY project"
                 )
                 return [row[0] for row in cur.fetchall()]
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def get_memory_by_id(self, memory_id: int) -> MemoryEntry | None:
         conn = self._connection()
@@ -349,8 +394,10 @@ class PostgresBackend(MemoryBackend):
                     cols = [desc[0] for desc in cur.description]
                     return MemoryEntry(**dict(zip(cols, row)))
                 return None
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def update_memory(self, memory_id: int, updates: dict[str, Any]) -> bool:
         allowed = {"content", "category", "confidence", "tags"}
@@ -369,8 +416,10 @@ class PostgresBackend(MemoryBackend):
                 updated = cur.rowcount > 0
             conn.commit()
             return updated
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise
 
     def delete_memory(self, memory_id: int) -> bool:
         conn = self._connection()
@@ -380,5 +429,7 @@ class PostgresBackend(MemoryBackend):
                 deleted = cur.rowcount > 0
             conn.commit()
             return deleted
-        finally:
+        except Exception:
             conn.close()
+            self._conn = None
+            raise

@@ -85,6 +85,10 @@ class SQLiteBackend(MemoryBackend):
         finally:
             self._close(conn)
 
+        from .migrations import run_migrations
+
+        run_migrations(self)
+
     def store(self, entry: MemoryEntry) -> int:
         conn = self._connection()
         try:

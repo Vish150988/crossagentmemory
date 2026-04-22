@@ -52,7 +52,7 @@ def _get_project() -> str:
 
 
 @click.group()
-@click.version_option(version="0.3.3")
+@click.version_option(version="0.3.4")
 def main() -> None:
     """AgentMemory — Cross-agent memory layer for AI coding agents."""
     pass

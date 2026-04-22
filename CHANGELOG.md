@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-04-21
+
+### Added
+- Schema versioning system (`agentmemory/backends/migrations.py`):
+  - `schema_version` table tracked on both SQLite and PostgreSQL.
+  - `CURRENT_SCHEMA_VERSION` constant for future migrations.
+  - `run_migrations()` automatically applied when backends initialize.
+- PostgreSQL connection pooling in `PostgresBackend`:
+  - Reuses a single cached connection across queries.
+  - Automatic reconnection on stale/closed connections.
+  - `PostgresBackend.close()` for explicit cleanup.
+- `tests/test_migrations.py` covering version table creation, idempotency, and get/set operations.
+
+### Changed
+- `SQLiteBackend.init()` and `PostgresBackend.init()` now call `run_migrations()` after table creation.
+- `PostgresBackend` methods now invalidate the cached connection on exceptions to force reconnection.
+
 ## [0.3.3] - 2026-04-21
 
 ### Added
