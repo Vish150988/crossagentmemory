@@ -46,16 +46,13 @@ def _execute_raw(backend: MemoryBackend, sql: str, params: tuple = ()) -> list:
         finally:
             backend._close(conn)
     else:
-
         conn = backend._connection()
-        try:
-            with conn.cursor() as cur:
-                cur.execute(sql, params)
-                rows = cur.fetchall()
-                conn.commit()
-                return rows
-        finally:
-            conn.close()
+        with conn.cursor() as cur:
+            cur.execute(sql, params)
+            # Only fetch rows for SELECT-like statements
+            rows = cur.fetchall() if cur.description else []
+            conn.commit()
+            return rows
 
 
 def ensure_version_table(backend: MemoryBackend) -> None:
