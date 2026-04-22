@@ -34,6 +34,7 @@ dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
+    "pyyaml>=6.0",
 ]
 embeddings = [
     "sentence-transformers>=3.0",
@@ -54,6 +55,7 @@ all = [
     "fastapi>=0.110",
     "uvicorn>=0.25",
     "psycopg>=3.0",
+    "pyyaml>=6.0",
 ]
 
 [project.scripts]

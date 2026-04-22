@@ -57,9 +57,14 @@ def _resolve_backend(backend: str, db_path: Path | None = None):
 class MemoryEngine:
     """Memory engine that delegates to a pluggable storage backend."""
 
-    def __init__(self, db_path: Optional[Path] = None, backend: str = "auto"):
-        self.db_path = db_path or DEFAULT_DB_PATH
-        self.backend = _resolve_backend(backend, db_path)
+    def __init__(self, db_path: Optional[Path] = None, backend: Optional[str] = None):
+        from .config import resolve_backend_from_config
+
+        cfg = resolve_backend_from_config()
+        resolved_backend = backend or cfg.get("backend", "auto")
+        resolved_db_path = db_path or cfg.get("db_path")
+        self.db_path = resolved_db_path or DEFAULT_DB_PATH
+        self.backend = _resolve_backend(resolved_backend, resolved_db_path)
         self.backend.init()
 
     def store(self, entry: MemoryEntry) -> int:

@@ -109,3 +109,28 @@ def test_api_export(client: TestClient) -> None:
     assert data["project"] == "export-test"
     assert data["count"] >= 1
     assert any(m["content"] == "export me" for m in data["memories"])
+
+
+def test_api_update_memory(client: TestClient) -> None:
+    resp = client.post("/api/capture", json={
+        "project": "update-test",
+        "content": "original",
+        "category": "fact",
+    })
+    memory_id = resp.json()["memory_id"]
+
+    resp = client.patch(f"/api/memories/{memory_id}", json={
+        "content": "updated",
+        "category": "decision",
+        "confidence": 0.5,
+    })
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "updated"
+
+    resp = client.get("/api/memories?project=update-test")
+    memories = resp.json()["memories"]
+    match = [m for m in memories if m["id"] == memory_id]
+    assert len(match) == 1
+    assert match[0]["content"] == "updated"
+    assert match[0]["category"] == "decision"
+    assert match[0]["confidence"] == 0.5

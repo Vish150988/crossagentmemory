@@ -174,14 +174,37 @@ async function loadMemories(project, keyword='', category='') {
     html+=`<tr>
       <td>#${m.id}</td>
       <td><span class="badge badge-${m.category}">${m.category}</span></td>
-      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">confidence: ${(m.confidence||1).toFixed(2)}</span></td>
+      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">confidence: ${(m.confidence||1).toFixed(2)}${m.tags ? ' · tags: ' + escapeHtml(m.tags) : ''}</span></td>
       <td>${escapeHtml(m.source||'-')}</td>
       <td>${(m.timestamp||'').replace('T',' ').substring(0,16)}</td>
-      <td><button class="delete-btn" onclick="deleteMemory(${m.id})">×</button></td>
+      <td>
+        <button class="delete-btn" style="background:var(--accent);margin-right:.3rem;" onclick="editMemory(${m.id},'${escapeHtml(m.content).replace(/'/g,'&#39;')}','${m.category}',${m.confidence},'${escapeHtml(m.tags||'').replace(/'/g,'&#39;')}')">✎</button>
+        <button class="delete-btn" onclick="deleteMemory(${m.id})">×</button>
+      </td>
     </tr>`;
   }
   html+='</table>';
   el.innerHTML=html;
+}
+
+async function editMemory(id, content, category, confidence, tags){
+  const newContent = prompt('Content:', content);
+  if(newContent === null) return;
+  const newCategory = prompt('Category (fact/decision/action/preference/error):', category);
+  if(newCategory === null) return;
+  const newConfidence = prompt('Confidence (0.0 - 1.0):', confidence);
+  if(newConfidence === null) return;
+  const newTags = prompt('Tags (comma-separated):', tags);
+  if(newTags === null) return;
+
+  const updates = {content: newContent, category: newCategory, confidence: parseFloat(newConfidence), tags: newTags};
+  const resp = await fetch('/api/memories/'+id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updates)});
+  const result = await resp.json();
+  if(result.status === 'updated'){
+    loadData();
+  } else {
+    alert('Update failed: ' + result.status);
+  }
 }
 
 function escapeHtml(text) {
@@ -326,6 +349,17 @@ def api_delete_memory(memory_id: int) -> dict[str, Any]:
     engine = MemoryEngine()
     deleted = engine.delete_memory(memory_id)
     return {"status": "deleted" if deleted else "not_found", "memory_id": memory_id}
+
+
+@app.patch("/api/memories/{memory_id}")
+def api_update_memory(memory_id: int, payload: dict[str, Any]) -> dict[str, Any]:
+    engine = MemoryEngine()
+    allowed = {"content", "category", "confidence", "tags"}
+    updates = {k: v for k, v in payload.items() if k in allowed}
+    if not updates:
+        return {"status": "no_changes", "memory_id": memory_id}
+    updated = engine.update_memory(memory_id, updates)
+    return {"status": "updated" if updated else "not_found", "memory_id": memory_id}
 
 
 @app.get("/api/projects")

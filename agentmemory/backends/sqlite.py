@@ -27,6 +27,10 @@ class SQLiteBackend(MemoryBackend):
     def _close(self, conn: sqlite3.Connection) -> None:
         conn.close()
 
+    def close(self) -> None:
+        """No-op for API compatibility; SQLite connections are per-query."""
+        pass
+
     def init(self) -> None:
         conn = self._connection()
         try:
@@ -83,7 +87,7 @@ class SQLiteBackend(MemoryBackend):
             )
             conn.commit()
         finally:
-            self._close(conn)
+            conn.close()
 
         from .migrations import run_migrations
 
