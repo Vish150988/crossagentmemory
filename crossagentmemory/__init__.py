@@ -17,3 +17,15 @@ try:
     __all__.append("PostgresBackend")
 except ImportError:
     pass
+
+try:
+    from .backends import ChromaBackend  # noqa: F401
+    __all__.append("ChromaBackend")
+except ImportError:
+    pass
+
+try:
+    from .backends import RedisBackend  # noqa: F401
+    __all__.append("RedisBackend")
+except ImportError:
+    pass

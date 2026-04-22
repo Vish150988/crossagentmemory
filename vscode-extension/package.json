@@ -2,8 +2,13 @@
   "name": "crossagentmemory",
   "displayName": "CrossAgentMemory",
   "description": "Capture and recall AI agent memories directly from VS Code",
-  "version": "0.2.0",
+  "version": "0.3.9",
   "publisher": "crossagentmemory",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Vish150988/crossagentmemory"
+  },
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -18,13 +23,16 @@
     "memory",
     "claude",
     "cursor",
-    "copilot"
+    "copilot",
+    "codex"
   ],
   "activationEvents": [
     "onCommand:crossagentmemory.capture",
     "onCommand:crossagentmemory.recall",
     "onCommand:crossagentmemory.search",
-    "onCommand:crossagentmemory.load"
+    "onCommand:crossagentmemory.load",
+    "onCommand:crossagentmemory.sync",
+    "onView:crossagentmemory.memories"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -32,6 +40,12 @@
       {
         "command": "crossagentmemory.capture",
         "title": "Capture Memory",
+        "category": "CrossAgentMemory",
+        "icon": "$(add)"
+      },
+      {
+        "command": "crossagentmemory.captureSelection",
+        "title": "Capture Selection as Memory",
         "category": "CrossAgentMemory",
         "icon": "$(add)"
       },
@@ -58,29 +72,90 @@
         "title": "Sync CLAUDE.md",
         "category": "CrossAgentMemory",
         "icon": "$(sync)"
+      },
+      {
+        "command": "crossagentmemory.refresh",
+        "title": "Refresh Memories",
+        "category": "CrossAgentMemory",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "crossagentmemory.openDashboard",
+        "title": "Open Dashboard",
+        "category": "CrossAgentMemory",
+        "icon": "$(globe)"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "crossagentmemory.capture",
+          "command": "crossagentmemory.captureSelection",
           "group": "crossagentmemory@1",
           "when": "editorHasSelection"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "crossagentmemory.refresh",
+          "when": "view == crossagentmemory.memories",
+          "group": "navigation"
+        },
+        {
+          "command": "crossagentmemory.capture",
+          "when": "view == crossagentmemory.memories",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "crossagentmemory.capture",
+        "key": "ctrl+shift+m",
+        "mac": "cmd+shift+m",
+        "when": "editorTextFocus"
+      },
+      {
+        "command": "crossagentmemory.recall",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r"
+      }
+    ],
+    "views": {
+      "explorer": [
+        {
+          "id": "crossagentmemory.memories",
+          "name": "Agent Memory",
+          "when": "workspaceHasFolders",
+          "icon": "$(history)"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "crossagentmemory",
+          "title": "CrossAgentMemory",
+          "icon": "$(history)"
         }
       ]
     },
     "configuration": {
-      "title": "crossagentmemory",
+      "title": "CrossAgentMemory",
       "properties": {
         "crossagentmemory.project": {
           "type": "string",
           "default": "",
-          "description": "Project name (auto-detected if empty)"
+          "description": "Project name (auto-detected from workspace folder if empty)"
         },
         "crossagentmemory.autoCapture": {
           "type": "boolean",
           "default": false,
           "description": "Auto-capture on file save"
+        },
+        "crossagentmemory.cliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path to crossagentmemory CLI (leave empty to use PATH)"
         }
       }
     }
@@ -91,6 +166,7 @@
     "watch": "tsc -watch -p ./"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
     "@types/vscode": "^1.80.0",
     "typescript": "^5.0.0"
   }

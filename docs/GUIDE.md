@@ -1,6 +1,6 @@
 # CrossAgentMemory Complete User Guide
 
-> **Version:** 0.2.0  
+> **Version:** 0.3.9  
 > **GitHub:** https://github.com/Vish150988/crossagentmemory
 
 ---
@@ -48,7 +48,7 @@ pip install crossagentmemory[dashboard]    # Web UI
 
 ```bash
 crossagentmemory --version
-# crossagentmemory, version 0.2.0
+# crossagentmemory, version 0.3.9
 ```
 
 ---
