@@ -1,12 +1,12 @@
-# Memagent 🧠
+# CrossAgentMemory 🧠
 
 > **Open-source cross-agent memory layer for AI coding agents.**
 
 Your AI agent should remember what you built yesterday, why you rejected that approach last week, and that you prefer `async/await` over callbacks.
 
-**Memagent makes that happen.**
+**CrossAgentMemory makes that happen.**
 
-[![CI](https://github.com/Vish150988/memagent/actions/workflows/ci.yml/badge.svg)](https://github.com/Vish150988/memagent/actions)
+[![CI](https://github.com/Vish150988/crossagentmemory/actions/workflows/ci.yml/badge.svg)](https://github.com/Vish150988/crossagentmemory/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -16,7 +16,7 @@ Your AI agent should remember what you built yesterday, why you rejected that ap
 
 Every time you start a new session with Claude Code, Codex, or Cursor, your agent remembers **nothing**. You re-explain your codebase. You re-teach your preferences. You burn tokens and patience.
 
-**Memagent fixes session amnesia.**
+**CrossAgentMemory fixes session amnesia.**
 
 ---
 
@@ -33,13 +33,13 @@ Every time you start a new session with Claude Code, Codex, or Cursor, your agen
 | **CLAUDE.md sync** | ✅ | Auto-generates `CLAUDE.md` from memory. Claude Code reads it automatically. |
 | **Git hooks** | ✅ | Auto-sync `CLAUDE.md` on every commit. |
 | **Auto-capture** | ✅ | Capture from git log, shell history, and Claude sessions automatically. |
-| **Team sync** | ✅ | Share memories via `.memagent/` folder in your repo. |
-| **MCP server** | ✅ | Expose Memagent as an MCP server for Cursor/Copilot/Claude. |
+| **Team sync** | ✅ | Share memories via `.crossagentmemory/` folder in your repo. |
+| **MCP server** | ✅ | Expose CrossAgentMemory as an MCP server for Cursor/Copilot/Claude. |
 | **Web dashboard** | ✅ | Browse, search, and manage memories in a local web UI. |
 | **Shell integration** | ✅ | Auto-inject context into Claude Code via shell aliases. |
 | **Background daemon** | ✅ | Silent auto-capture while you work. |
 | **Memory graph** | ✅ | Visualize relationships between memories. |
-| **Mem0 importer** | ✅ | Migrate from Mem0 to Memagent. |
+| **Mem0 importer** | ✅ | Migrate from Mem0 to CrossAgentMemory. |
 | **Social sharing** | ✅ | Auto-post milestones to Twitter/LinkedIn. |
 | **VS Code extension** | ✅ | Capture memories directly from your editor. |
 | **LLM summarization** | ✅ | GPT/Claude-powered project & session summaries. |
@@ -47,7 +47,7 @@ Every time you start a new session with Claude Code, Codex, or Cursor, your agen
 | **Conflict detection** | ✅ | Detect contradictory memories automatically. |
 | **REST API** | ✅ | Full HTTP API for any integration. |
 | **Backup & restore** | ✅ | Export/import memories, projects, and embeddings as `.zip` or `.json`. |
-| **Config file** | ✅ | `~/.memagent/config.yaml` for persistent backend and LLM settings. |
+| **Config file** | ✅ | `~/.crossagentmemory/config.yaml` for persistent backend and LLM settings. |
 | **FTS5 search** | ✅ | Ranked full-text search with SQLite FTS5 (falls back to LIKE). |
 
 ---
@@ -55,11 +55,11 @@ Every time you start a new session with Claude Code, Codex, or Cursor, your agen
 ## Install
 
 ```bash
-pip install memagent
+pip install crossagentmemory
 # or
-pipx install memagent
+pipx install crossagentmemory
 # or
-uv tool install memagent
+uv tool install crossagentmemory
 ```
 
 ---
@@ -70,23 +70,23 @@ uv tool install memagent
 
 ```bash
 cd my-project
-memagent init
+crossagentmemory init
 ```
 
 ### 2. Capture memories as you work
 
 ```bash
-memagent capture "Chose PostgreSQL over MongoDB for ACID compliance" --category decision --confidence 0.95
+crossagentmemory capture "Chose PostgreSQL over MongoDB for ACID compliance" --category decision --confidence 0.95
 
-memagent capture "Always use async/await, never callbacks" --category preference
+crossagentmemory capture "Always use async/await, never callbacks" --category preference
 
-memagent capture "Auth bug: JWT refresh tokens not rotating" --category error
+crossagentmemory capture "Auth bug: JWT refresh tokens not rotating" --category error
 ```
 
 ### 3. Find related memories (semantic search)
 
 ```bash
-memagent related "authentication flow"
+crossagentmemory related "authentication flow"
 ```
 
 Output:
@@ -101,13 +101,13 @@ Output:
 ### 4. Summarize your project
 
 ```bash
-memagent summarize
+crossagentmemory summarize
 ```
 
 ### 5. Sync to CLAUDE.md
 
 ```bash
-memagent sync
+crossagentmemory sync
 ```
 
 This generates `CLAUDE.md` in your project root. **Claude Code reads it automatically** on startup.
@@ -115,7 +115,7 @@ This generates `CLAUDE.md` in your project root. **Claude Code reads it automati
 ### 6. Install git hooks (auto-sync on commit)
 
 ```bash
-memagent hook install
+crossagentmemory hook install
 ```
 
 Now `CLAUDE.md` updates automatically every time you commit.
@@ -126,71 +126,71 @@ Now `CLAUDE.md` updates automatically every time you commit.
 
 ```bash
 # Core memory operations
-memagent init                          # Initialize memory for project
-memagent capture "content"             # Store a memory
-memagent capture "..." --auto-tag      # Auto-generate tags with LLM
-memagent recall                        # List recent memories
-memagent search "keyword"              # Keyword search
-memagent related "query"               # Semantic search
-memagent summarize                     # Auto-summarize project
-memagent summarize --llm               # LLM-powered rich summary
-memagent summarize --session ID        # Summarize one session
-memagent digest                        # Weekly digest
-memagent digest --llm                  # LLM-powered weekly digest
-memagent check-conflicts               # Detect contradictory memories
-memagent reinforce <id>                # Boost memory confidence
-memagent decay                         # Apply confidence decay
-memagent decay --dry-run               # Preview decay
+crossagentmemory init                          # Initialize memory for project
+crossagentmemory capture "content"             # Store a memory
+crossagentmemory capture "..." --auto-tag      # Auto-generate tags with LLM
+crossagentmemory recall                        # List recent memories
+crossagentmemory search "keyword"              # Keyword search
+crossagentmemory related "query"               # Semantic search
+crossagentmemory summarize                     # Auto-summarize project
+crossagentmemory summarize --llm               # LLM-powered rich summary
+crossagentmemory summarize --session ID        # Summarize one session
+crossagentmemory digest                        # Weekly digest
+crossagentmemory digest --llm                  # LLM-powered weekly digest
+crossagentmemory check-conflicts               # Detect contradictory memories
+crossagentmemory reinforce <id>                # Boost memory confidence
+crossagentmemory decay                         # Apply confidence decay
+crossagentmemory decay --dry-run               # Preview decay
 
 # Auto-capture
-memagent capture-auto                  # Auto-capture from git + shell + Claude
-memagent capture-auto --dry-run        # Preview what would be captured
-memagent capture-auto --sources git    # Only capture from git log
+crossagentmemory capture-auto                  # Auto-capture from git + shell + Claude
+crossagentmemory capture-auto --dry-run        # Preview what would be captured
+crossagentmemory capture-auto --sources git    # Only capture from git log
 
 # Agent integration
-memagent load                          # Generate context brief
-memagent sync                          # Sync to CLAUDE.md
-memagent export                        # Export to markdown
+crossagentmemory load                          # Generate context brief
+crossagentmemory sync                          # Sync to CLAUDE.md
+crossagentmemory export                        # Export to markdown
 
 # Team sync
-memagent team export                   # Export memories to .memagent/
-memagent team import                   # Import team-shared memories
-memagent team status                   # Show team sync status
+crossagentmemory team export                   # Export memories to .crossagentmemory/
+crossagentmemory team import                   # Import team-shared memories
+crossagentmemory team status                   # Show team sync status
 
 # Shell integration
-memagent shell show                    # Show shell integration script
+crossagentmemory shell show                    # Show shell integration script
 
 # Background daemon
-memagent daemon start                  # Start silent auto-capture
-memagent daemon status                 # Check daemon status
+crossagentmemory daemon start                  # Start silent auto-capture
+crossagentmemory daemon status                 # Check daemon status
 
 # Import & migration
-memagent import <path> --format mem0   # Import from Mem0
-memagent import <path> --format markdown
-memagent import <path> --format json
+crossagentmemory import <path> --format mem0   # Import from Mem0
+crossagentmemory import <path> --format markdown
+crossagentmemory import <path> --format json
 
 # Social sharing
-memagent post "Milestone!"             # Post to Twitter/LinkedIn
+crossagentmemory post "Milestone!"             # Post to Twitter/LinkedIn
 
 # Memory graph
-memagent graph                         # Build relationship graph
+crossagentmemory graph                         # Build relationship graph
 
 # MCP server & dashboard & API
-memagent mcp                           # Start MCP server (stdio)
-memagent dashboard                     # Start web dashboard on :8745
-memagent server                        # Start REST API on :8746
+crossagentmemory mcp                           # Start MCP server (stdio)
+crossagentmemory dashboard                     # Start web dashboard on :8745
+crossagentmemory server                        # Start REST API on :8746
 
 # Backup & restore
-memagent backup                        # Create dated .zip backup
-memagent backup -p my-project          # Backup single project
-memagent restore backup.zip            # Restore from backup
-memagent restore backup.zip --dry-run  # Preview restore
+crossagentmemory backup                        # Create dated .zip backup
+crossagentmemory backup -p my-project          # Backup single project
+crossagentmemory restore backup.zip            # Restore from backup
+crossagentmemory restore backup.zip --dry-run  # Preview restore
 
 # Management
-memagent stats                         # Show statistics
-memagent hook install                  # Install git hooks
-memagent hook uninstall                # Remove git hooks
-memagent delete <project>              # Wipe project memory
+crossagentmemory stats                         # Show statistics
+crossagentmemory hook install                  # Install git hooks
+crossagentmemory hook uninstall                # Remove git hooks
+crossagentmemory delete <project>              # Wipe project memory
 ```
 
 ---
@@ -200,21 +200,21 @@ memagent delete <project>              # Wipe project memory
 ```
 Your Terminal Agent
        │
-       ├──► memagent capture "..."   ──► SQLite (~/.memagent/memory.db)
+       ├──► crossagentmemory capture "..."   ──► SQLite (~/.crossagentmemory/memory.db)
        │
-       ├──► memagent capture-auto    ──► Auto-import from git / shell / Claude
+       ├──► crossagentmemory capture-auto    ──► Auto-import from git / shell / Claude
        │
-       ├──► memagent related "..."   ──► TF-IDF + Cosine Similarity (numpy)
+       ├──► crossagentmemory related "..."   ──► TF-IDF + Cosine Similarity (numpy)
        │
-       ├──► memagent load            ──► Markdown brief for agent context
+       ├──► crossagentmemory load            ──► Markdown brief for agent context
        │
-       ├──► memagent sync            ──► CLAUDE.md (auto-read by Claude Code)
+       ├──► crossagentmemory sync            ──► CLAUDE.md (auto-read by Claude Code)
        │
-       ├──► memagent team export     ──► .memagent/ (git-shared)
+       ├──► crossagentmemory team export     ──► .crossagentmemory/ (git-shared)
        │
-       ├──► memagent mcp             ──► MCP server for Cursor/Copilot/Claude
+       ├──► crossagentmemory mcp             ──► MCP server for Cursor/Copilot/Claude
        │
-       └──► memagent dashboard       ──► Web UI on http://localhost:8745
+       └──► crossagentmemory dashboard       ──► Web UI on http://localhost:8745
 ```
 
 **Storage:** Plain SQLite. Query it with any tool. Back it up. Version it.
@@ -239,9 +239,9 @@ Your Terminal Agent
 
 ## Why Not Just Use CLAUDE.md?
 
-`CLAUDE.md` is static documentation. Memagent is **learned memory**:
+`CLAUDE.md` is static documentation. CrossAgentMemory is **learned memory**:
 
-| CLAUDE.md | Memagent |
+| CLAUDE.md | CrossAgentMemory |
 |-----------|-------------|
 | You write it manually | Captured as you work |
 | Same every session | Grows and evolves |
@@ -249,13 +249,13 @@ Your Terminal Agent
 | One file per project | Searchable across all history |
 | No semantic search | Find related ideas by meaning |
 
-**Use both.** `CLAUDE.md` for stable conventions. Memagent for dynamic context.
+**Use both.** `CLAUDE.md` for stable conventions. CrossAgentMemory for dynamic context.
 
 ---
 
 ## Storage Backends
 
-Memagent supports multiple storage backends. **SQLite is the default** — zero config, works offline, perfect for individuals.
+CrossAgentMemory supports multiple storage backends. **SQLite is the default** — zero config, works offline, perfect for individuals.
 
 **PostgreSQL** is available for teams, concurrent access, and larger deployments.
 
@@ -263,31 +263,31 @@ Memagent supports multiple storage backends. **SQLite is the default** — zero 
 
 ```bash
 # No configuration needed — works out of the box
-memagent init
+crossagentmemory init
 ```
 
-Database file: `~/.memagent/memory.db`
+Database file: `~/.crossagentmemory/memory.db`
 
 ### PostgreSQL
 
 ```bash
 # 1. Install with PostgreSQL support
-pip install memagent[postgres]
+pip install crossagentmemory[postgres]
 
 # 2. Start PostgreSQL (Docker Compose included)
 docker compose up -d
 
 # 3. Set the connection URL
-export DATABASE_URL=postgresql://memagent:memagent@localhost:5432/memagent
+export DATABASE_URL=postgresql://crossagentmemory:crossagentmemory@localhost:5432/crossagentmemory
 
 # 4. Initialize
-memagent init
+crossagentmemory init
 ```
 
 ### Switching Backends
 
 ```python
-from memagent import MemoryEngine
+from crossagentmemory import MemoryEngine
 
 # Auto-detect: uses Postgres if DATABASE_URL is set, otherwise SQLite
 engine = MemoryEngine()
@@ -303,13 +303,13 @@ engine = MemoryEngine(backend="postgres")
 
 ```bash
 # Migrate all memories from SQLite to PostgreSQL
-memagent migrate --from-backend sqlite --to-backend postgres
+crossagentmemory migrate --from-backend sqlite --to-backend postgres
 
 # Migrate a single project
-memagent migrate -p my-project --from-backend sqlite --to-backend postgres
+crossagentmemory migrate -p my-project --from-backend sqlite --to-backend postgres
 
 # Specify custom source DB or target DSN
-memagent migrate --from-db-path ./old.db --to-dsn postgresql://user:pass@host/db
+crossagentmemory migrate --from-db-path ./old.db --to-dsn postgresql://user:pass@host/db
 ```
 
 ---
@@ -347,8 +347,8 @@ memagent migrate --from-db-path ./old.db --to-dsn postgresql://user:pass@host/db
 PRs welcome! This is a community project.
 
 ```bash
-git clone https://github.com/Vish150988/memagent.git
-cd memagent
+git clone https://github.com/Vish150988/crossagentmemory.git
+cd crossagentmemory
 pip install -e ".[dev]"
 pytest tests/ -v
 ```

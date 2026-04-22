@@ -1,4 +1,4 @@
-"""SQLite storage backend for Memagent."""
+"""SQLite storage backend for CrossAgentMemory."""
 
 from __future__ import annotations
 

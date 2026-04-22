@@ -3,8 +3,8 @@
 import tempfile
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.decay import decay_confidence, reinforce_memory
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.decay import decay_confidence, reinforce_memory
 
 
 def test_reinforce_memory():

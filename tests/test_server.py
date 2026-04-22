@@ -8,7 +8,7 @@ pytest.importorskip("fastapi")
 
 from fastapi.testclient import TestClient
 
-from memagent.server import app
+from crossagentmemory.server import app
 
 
 @pytest.fixture

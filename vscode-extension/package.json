@@ -1,9 +1,9 @@
 {
-  "name": "memagent",
-  "displayName": "Memagent",
+  "name": "crossagentmemory",
+  "displayName": "CrossAgentMemory",
   "description": "Capture and recall AI agent memories directly from VS Code",
   "version": "0.2.0",
-  "publisher": "memagent",
+  "publisher": "crossagentmemory",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -21,63 +21,63 @@
     "copilot"
   ],
   "activationEvents": [
-    "onCommand:memagent.capture",
-    "onCommand:memagent.recall",
-    "onCommand:memagent.search",
-    "onCommand:memagent.load"
+    "onCommand:crossagentmemory.capture",
+    "onCommand:crossagentmemory.recall",
+    "onCommand:crossagentmemory.search",
+    "onCommand:crossagentmemory.load"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "memagent.capture",
+        "command": "crossagentmemory.capture",
         "title": "Capture Memory",
-        "category": "Memagent",
+        "category": "CrossAgentMemory",
         "icon": "$(add)"
       },
       {
-        "command": "memagent.recall",
+        "command": "crossagentmemory.recall",
         "title": "Recall Memories",
-        "category": "Memagent",
+        "category": "CrossAgentMemory",
         "icon": "$(history)"
       },
       {
-        "command": "memagent.search",
+        "command": "crossagentmemory.search",
         "title": "Search Memories",
-        "category": "Memagent",
+        "category": "CrossAgentMemory",
         "icon": "$(search)"
       },
       {
-        "command": "memagent.load",
+        "command": "crossagentmemory.load",
         "title": "Load Context Brief",
-        "category": "Memagent",
+        "category": "CrossAgentMemory",
         "icon": "$(file-code)"
       },
       {
-        "command": "memagent.sync",
+        "command": "crossagentmemory.sync",
         "title": "Sync CLAUDE.md",
-        "category": "Memagent",
+        "category": "CrossAgentMemory",
         "icon": "$(sync)"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "memagent.capture",
-          "group": "memagent@1",
+          "command": "crossagentmemory.capture",
+          "group": "crossagentmemory@1",
           "when": "editorHasSelection"
         }
       ]
     },
     "configuration": {
-      "title": "memagent",
+      "title": "crossagentmemory",
       "properties": {
-        "memagent.project": {
+        "crossagentmemory.project": {
           "type": "string",
           "default": "",
           "description": "Project name (auto-detected if empty)"
         },
-        "memagent.autoCapture": {
+        "crossagentmemory.autoCapture": {
           "type": "boolean",
           "default": false,
           "description": "Auto-capture on file save"

@@ -3,8 +3,8 @@
 import tempfile
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.semantic import SemanticIndex
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.semantic import SemanticIndex
 
 
 def test_semantic_search_finds_related():

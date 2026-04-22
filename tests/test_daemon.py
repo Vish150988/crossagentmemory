@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent.daemon import DaemonConfig, MemoryDaemon, daemon_status
+from crossagentmemory.daemon import DaemonConfig, MemoryDaemon, daemon_status
 
 
 def test_daemon_config() -> None:

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent.config import (
+from crossagentmemory.config import (
     CONFIG_PATH,
     get_config_value,
     load_config,
@@ -17,7 +17,7 @@ class TestConfig:
         # Temporarily redirect config path
         original = CONFIG_PATH
         try:
-            from memagent import config as cfg_mod
+            from crossagentmemory import config as cfg_mod
 
             cfg_mod.CONFIG_PATH = tmp_path / "config.yaml"
             cfg = load_config()
@@ -29,7 +29,7 @@ class TestConfig:
     def test_get_config_value_missing(self, tmp_path: Path) -> None:
         original = CONFIG_PATH
         try:
-            from memagent import config as cfg_mod
+            from crossagentmemory import config as cfg_mod
 
             cfg_mod.CONFIG_PATH = tmp_path / "empty.yaml"
             cfg_mod.CONFIG_PATH.write_text("", encoding="utf-8")
@@ -39,6 +39,6 @@ class TestConfig:
             cfg_mod.CONFIG_PATH = original
 
     def test_resolve_backend_from_config_env_override(self, monkeypatch) -> None:
-        monkeypatch.setenv("MEMAGENT_BACKEND", "sqlite")
+        monkeypatch.setenv("CROSSAGENTMEMORY_BACKEND", "sqlite")
         kwargs = resolve_backend_from_config()
         assert kwargs["backend"] == "sqlite"

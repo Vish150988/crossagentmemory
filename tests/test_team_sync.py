@@ -7,8 +7,8 @@ from pathlib import Path
 
 import pytest
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.team_sync import team_export, team_import, team_status
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.team_sync import team_export, team_import, team_status
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def test_team_export_creates_json(temp_engine: MemoryEngine, tmp_path: Path) -> 
 
     export_path = team_export("demo", cwd=tmp_path, engine=engine)
     assert export_path.exists()
-    assert export_path.parent.name == ".memagent"
+    assert export_path.parent.name == ".crossagentmemory"
     data = json.loads(export_path.read_text(encoding="utf-8"))
     assert data["project"] == "demo"
     assert len(data["memories"]) == 2

@@ -5,7 +5,7 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 
 function getProjectName(): string {
-    const config = vscode.workspace.getConfiguration('memagent');
+    const config = vscode.workspace.getConfiguration('crossagentmemory');
     const configured = config.get<string>('project');
     if (configured && configured.trim()) {
         return configured;
@@ -19,13 +19,13 @@ function getProjectName(): string {
 
 async function runMemagent(args: string[]): Promise<string> {
     const project = getProjectName();
-    const cmd = `memagent ${args.join(' ')} --project "${project}"`;
+    const cmd = `crossagentmemory ${args.join(' ')} --project "${project}"`;
     try {
         const { stdout } = await execAsync(cmd);
         return stdout;
     } catch (err: any) {
         // Fallback to python module path
-        const fallback = `python -m memagent.cli ${args.join(' ')} --project "${project}"`;
+        const fallback = `python -m crossagentmemory.cli ${args.join(' ')} --project "${project}"`;
         const { stdout } = await execAsync(fallback);
         return stdout;
     }
@@ -33,7 +33,7 @@ async function runMemagent(args: string[]): Promise<string> {
 
 export function activate(context: vscode.ExtensionContext) {
     // Capture memory
-    const capture = vscode.commands.registerCommand('memagent.capture', async () => {
+    const capture = vscode.commands.registerCommand('crossagentmemory.capture', async () => {
         const editor = vscode.window.activeTextEditor;
         let defaultText = '';
         if (editor && !editor.selection.isEmpty) {
@@ -62,12 +62,12 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Recall memories
-    const recall = vscode.commands.registerCommand('memagent.recall', async () => {
+    const recall = vscode.commands.registerCommand('crossagentmemory.recall', async () => {
         try {
             const result = await runMemagent(['recall']);
             const panel = vscode.window.createWebviewPanel(
-                'memagentRecall',
-                'Memagent — Recall',
+                'crossagentmemoryRecall',
+                'CrossAgentMemory — Recall',
                 vscode.ViewColumn.One,
                 {}
             );
@@ -78,7 +78,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Search memories
-    const search = vscode.commands.registerCommand('memagent.search', async () => {
+    const search = vscode.commands.registerCommand('crossagentmemory.search', async () => {
         const keyword = await vscode.window.showInputBox({
             prompt: 'Search memories',
             placeHolder: 'Keyword...'
@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Load context brief
-    const load = vscode.commands.registerCommand('memagent.load', async () => {
+    const load = vscode.commands.registerCommand('crossagentmemory.load', async () => {
         try {
             const result = await runMemagent(['load']);
             await vscode.env.clipboard.writeText(result);
@@ -105,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
     });
 
     // Sync CLAUDE.md
-    const sync = vscode.commands.registerCommand('memagent.sync', async () => {
+    const sync = vscode.commands.registerCommand('crossagentmemory.sync', async () => {
         try {
             const result = await runMemagent(['sync']);
             vscode.window.showInformationMessage(`Synced: ${result.trim()}`);
@@ -116,7 +116,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Auto-capture on save (if enabled)
     const saveListener = vscode.workspace.onDidSaveTextDocument(async (doc) => {
-        const config = vscode.workspace.getConfiguration('memagent');
+        const config = vscode.workspace.getConfiguration('crossagentmemory');
         if (!config.get<boolean>('autoCapture')) { return; }
 
         const relative = vscode.workspace.asRelativePath(doc.uri);

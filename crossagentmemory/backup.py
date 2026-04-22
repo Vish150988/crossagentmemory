@@ -1,4 +1,4 @@
-"""Backup and restore for Memagent.
+"""Backup and restore for CrossAgentMemory.
 
 Formats:
   - .zip  (default): memories.json + projects.json + embeddings.json + meta.json

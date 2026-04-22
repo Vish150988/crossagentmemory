@@ -71,7 +71,7 @@ def import_from_mem0(mem0_dir: Path, engine: MemoryEngine | None = None) -> dict
 
 
 def _mem0_item_to_entry(item: dict[str, Any]) -> MemoryEntry | None:
-    """Convert a Mem0 memory item to Memagent MemoryEntry."""
+    """Convert a Mem0 memory item to CrossAgentMemory MemoryEntry."""
     content = item.get("memory") or item.get("content") or item.get("text")
     if not content:
         return None

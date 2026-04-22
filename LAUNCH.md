@@ -1,21 +1,21 @@
-# Memagent Launch Kit
+# CrossAgentMemory Launch Kit
 
 ## Twitter/X Post
 
 ```
-🚀 Just shipped Memagent — open-source memory for AI coding agents.
+🚀 Just shipped CrossAgentMemory — open-source memory for AI coding agents.
 
 Tired of re-explaining your codebase to Claude Code every session?
 
-Memagent fixes that:
+CrossAgentMemory fixes that:
 • Capture decisions, preferences, errors
 • Semantic search (no heavy deps, pure numpy)
 • Auto-generates CLAUDE.md
 • Confidence decay — old memories fade, important ones stick
 
-pip install memagent
+pip install crossagentmemory
 
-https://github.com/Vish150988/memagent
+https://github.com/Vish150988/crossagentmemory
 
 #AI #OpenSource #ClaudeCode #Codex #Cursor
 ```
@@ -26,7 +26,7 @@ https://github.com/Vish150988/memagent
 
 **Body:**
 ```
-Every time I start a new Claude Code session, I have to re-explain my codebase. So I built Memagent — a local, open-source memory system that persists across sessions.
+Every time I start a new Claude Code session, I have to re-explain my codebase. So I built CrossAgentMemory — a local, open-source memory system that persists across sessions.
 
 What it does:
 - Stores decisions, preferences, errors, facts in SQLite
@@ -36,18 +36,18 @@ What it does:
 
 Tech stack: Python, Click, Rich, numpy (no OpenAI API, no cloud, no vector DB required)
 
-GitHub: https://github.com/Vish150988/memagent
+GitHub: https://github.com/Vish150988/crossagentmemory
 
 Would love feedback from anyone using AI agents for coding!
 ```
 
 ## Hacker News Post
 
-**Title:** Show HN: Memagent – Open-source memory layer for AI coding agents
+**Title:** Show HN: CrossAgentMemory – Open-source memory layer for AI coding agents
 
 **Body:**
 ```
-I built Memagent because I was tired of Claude Code forgetting everything between sessions.
+I built CrossAgentMemory because I was tired of Claude Code forgetting everything between sessions.
 
 It's a local-first, cross-agent memory system:
 - SQLite storage (private, fast, portable)
@@ -57,17 +57,17 @@ It's a local-first, cross-agent memory system:
 
 No cloud. No API keys. No heavy ML dependencies.
 
-Code: https://github.com/Vish150988/memagent
+Code: https://github.com/Vish150988/crossagentmemory
 ```
 
 ## LinkedIn Post
 
 ```
-I just open-sourced Memagent — a memory layer for AI coding agents.
+I just open-sourced CrossAgentMemory — a memory layer for AI coding agents.
 
 If you use Claude Code, Codex, or Cursor, you know the pain: every session starts from zero. You re-explain your architecture. You re-teach your conventions. You burn tokens and time.
 
-Memagent solves this with:
+CrossAgentMemory solves this with:
 ✅ Local SQLite storage — your data never leaves your machine
 ✅ Semantic search — find memories by meaning, not keywords
 ✅ Auto-generated CLAUDE.md — Claude Code reads it automatically
@@ -75,7 +75,7 @@ Memagent solves this with:
 
 Built with Python, Click, Rich, and numpy. No cloud dependencies. No API costs.
 
-Check it out: https://github.com/Vish150988/memagent
+Check it out: https://github.com/Vish150988/crossagentmemory
 
 Would love your feedback and contributions!
 

@@ -31,10 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.6] - 2026-04-21
 
 ### Added
-- Configuration file support (`memagent/config.py`):
-  - Auto-creates `~/.memagent/config.yaml` on first access.
+- Configuration file support (`crossagentmemory/config.py`):
+  - Auto-creates `~/.crossagentmemory/config.yaml` on first access.
   - Supports `backend`, `db_path`, `database_url`, and `llm` settings.
-  - Env vars override config values (`MEMAGENT_BACKEND`, `MEMAGENT_DB_PATH`).
+  - Env vars override config values (`CROSSAGENTMEMORY_BACKEND`, `CROSSAGENTMEMORY_DB_PATH`).
 - `MemoryEngine()` reads backend and db_path from config + env vars automatically.
 - Dashboard inline memory editing:
   - `PATCH /api/memories/{id}` endpoint.
@@ -49,20 +49,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.5] - 2026-04-21
 
 ### Added
-- Backup and restore system (`memagent/backends/backup.py`):
+- Backup and restore system (`crossagentmemory/backends/backup.py`):
   - `create_backup()` exports memories, projects, and embeddings to `.zip` or `.json`
   - `restore_backup()` imports from `.zip` or `.json` with ID remapping
   - Embeddings are restored by mapping old memory IDs to new ones
 - CLI commands:
-  - `memagent backup [--project] [--output]` — creates a dated `.zip` by default
-  - `memagent restore <path> [--dry-run]` — restore with preview option
+  - `crossagentmemory backup [--project] [--output]` — creates a dated `.zip` by default
+  - `crossagentmemory restore <path> [--dry-run]` — restore with preview option
 - `MemoryBackend.list_embedding_models(project)` — returns distinct embedding model names
 - Tests: `tests/test_backup.py` covering zip/json backup, restore, and dry-run
 
 ## [0.3.4] - 2026-04-21
 
 ### Added
-- Schema versioning system (`memagent/backends/migrations.py`):
+- Schema versioning system (`crossagentmemory/backends/migrations.py`):
   - `schema_version` table tracked on both SQLite and PostgreSQL.
   - `CURRENT_SCHEMA_VERSION` constant for future migrations.
   - `run_migrations()` automatically applied when backends initialize.
@@ -88,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - CLI `init --backend` now actually uses the selected backend (was previously ignored).
 - CLI `migrate` enhanced with `--from-db-path`, `--to-dsn`, embedding migration, and project description preservation.
-- `memagent/__init__.py` now exports `MemoryEngine`, `MemoryEntry`, `MemoryBackend`, `SQLiteBackend`, and `PostgresBackend` (when available).
+- `crossagentmemory/__init__.py` now exports `MemoryEngine`, `MemoryEntry`, `MemoryBackend`, `SQLiteBackend`, and `PostgresBackend` (when available).
 - SQLite backend enables WAL mode (`PRAGMA journal_mode=WAL`) for better concurrent read/write performance.
 
 ### Fixed
@@ -98,12 +98,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Pluggable storage backend system:
-  - `memagent/backends/base.py` — `MemoryBackend` abstract interface.
-  - `memagent/backends/sqlite.py` — Full SQLite implementation (extracted from `core.py`).
-  - `memagent/backends/postgres.py` — Full PostgreSQL implementation via `psycopg`.
-  - `memagent/backends/__init__.py` — Factory and optional exports.
+  - `crossagentmemory/backends/base.py` — `MemoryBackend` abstract interface.
+  - `crossagentmemory/backends/sqlite.py` — Full SQLite implementation (extracted from `core.py`).
+  - `crossagentmemory/backends/postgres.py` — Full PostgreSQL implementation via `psycopg`.
+  - `crossagentmemory/backends/__init__.py` — Factory and optional exports.
 - `MemoryEngine` now accepts `backend="sqlite" | "postgres" | "auto"` and delegates to `self.backend`.
-- Optional dependency: `pip install memagent[postgres]` for PostgreSQL support.
+- Optional dependency: `pip install crossagentmemory[postgres]` for PostgreSQL support.
 - `tests/test_storage_backends.py` for backend interface contract tests.
 - Auto-detection: uses PostgreSQL when `DATABASE_URL` is set, otherwise SQLite.
 
@@ -114,12 +114,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.1] - 2026-04-18
 
 ### Added
-- LLM client abstraction (`memagent/llm.py`) supporting OpenAI, Anthropic, and Ollama.
+- LLM client abstraction (`crossagentmemory/llm.py`) supporting OpenAI, Anthropic, and Ollama.
 - LLM-powered project and session summarization.
-- Smart auto-tagging via LLM (`memagent capture "..." --auto-tag`).
+- Smart auto-tagging via LLM (`crossagentmemory capture "..." --auto-tag`).
 - Memory conflict detection — finds contradictory memories automatically.
-- Weekly digest generation (`memagent digest`).
-- REST API server (`memagent server`) on port 8746 with `/api/memories`, `/api/search`, `/api/summarize`, `/api/digest`.
+- Weekly digest generation (`crossagentmemory digest`).
+- REST API server (`crossagentmemory server`) on port 8746 with `/api/memories`, `/api/search`, `/api/summarize`, `/api/digest`.
 - CLI `check-conflicts` command.
 
 ### Changed
@@ -129,32 +129,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Shell integration for bash, zsh, fish, and PowerShell — auto-injects context into agents.
-- Background daemon (`memagent daemon start`) for silent auto-capture.
+- Background daemon (`crossagentmemory daemon start`) for silent auto-capture.
 - Memory graph visualization — relationship graph with category clusters and timeline.
-- Mem0 importer (`memagent import <path> --format mem0`).
+- Mem0 importer (`crossagentmemory import <path> --format mem0`).
 - Markdown and JSON importers.
 - Social sharing — auto-post milestones to Twitter and LinkedIn.
 - VS Code extension scaffold.
-- `memagent graph` CLI command.
-- `memagent post` CLI command.
+- `crossagentmemory graph` CLI command.
+- `crossagentmemory post` CLI command.
 
 ## [0.2.0] - 2026-04-10
 
 ### Added
-- Team sync via git — export/import shared memories via `.memagent/` folder.
+- Team sync via git — export/import shared memories via `.crossagentmemory/` folder.
 - Auto-capture from git log, shell history, and Claude sessions.
 - MCP server (stdio) for Cursor/Copilot/Claude integration.
 - Web dashboard (FastAPI) on port 8745.
-- `memagent team export`, `memagent team import`, `memagent team status` commands.
-- `memagent capture-auto` command.
-- `memagent mcp` command.
-- `memagent dashboard` command.
+- `crossagentmemory team export`, `crossagentmemory team import`, `crossagentmemory team status` commands.
+- `crossagentmemory capture-auto` command.
+- `crossagentmemory mcp` command.
+- `crossagentmemory dashboard` command.
 
 ## [0.1.0] - 2026-04-05
 
 ### Added
 - Core SQLite memory engine with CRUD operations.
-- CLI (`memagent` / `mg`) with `init`, `capture`, `recall`, `search`, `load`, `export`, `sync`, `stats`, `delete`.
+- CLI (`crossagentmemory` / `cam`) with `init`, `capture`, `recall`, `search`, `load`, `export`, `sync`, `stats`, `delete`.
 - Semantic search via TF-IDF + cosine similarity (pure numpy, no heavy dependencies).
 - Auto-summarization of projects and sessions.
 - Confidence decay and reinforcement algorithms.

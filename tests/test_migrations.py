@@ -4,14 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent.backends.migrations import (
+from crossagentmemory.backends.migrations import (
     CURRENT_SCHEMA_VERSION,
     ensure_version_table,
     get_schema_version,
     run_migrations,
     set_schema_version,
 )
-from memagent.backends.sqlite import SQLiteBackend
+from crossagentmemory.backends.sqlite import SQLiteBackend
 
 
 class TestMigrations:

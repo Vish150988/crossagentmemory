@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from memagent.llm import LLMClient, get_llm_client
+from crossagentmemory.llm import LLMClient, get_llm_client
 
 
 def test_llm_client_without_keys() -> None:

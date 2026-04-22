@@ -1,4 +1,4 @@
-"""Team sync — share memories via git-tracked `.memagent/` folder."""
+"""Team sync — share memories via git-tracked `.crossagentmemory/` folder."""
 
 from __future__ import annotations
 
@@ -10,8 +10,8 @@ from typing import Any
 
 from .core import MemoryEngine, MemoryEntry
 
-TEAM_FOLDER = ".memagent"
-TEAM_GITIGNORE = """# memagent team sync folder
+TEAM_FOLDER = ".crossagentmemory"
+TEAM_GITIGNORE = """# crossagentmemory team sync folder
 # Commit memory exports to share context with your team.
 # Ignore large or auto-generated files:
 *.log
@@ -35,7 +35,7 @@ def team_export(
     cwd: Path | None = None,
     engine: MemoryEngine | None = None,
 ) -> Path:
-    """Export project memories to `.memagent/` as JSON for team sharing.
+    """Export project memories to `.crossagentmemory/` as JSON for team sharing.
 
     Returns the path to the exported file.
     """
@@ -89,7 +89,7 @@ def team_import(
     engine: MemoryEngine | None = None,
     dry_run: bool = False,
 ) -> dict[str, int]:
-    """Import team-shared memories from `.memagent/` into local DB.
+    """Import team-shared memories from `.crossagentmemory/` into local DB.
 
     Returns counts: {'imported': int, 'skipped': int, 'files': int}
     """

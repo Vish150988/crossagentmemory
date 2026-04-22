@@ -1,4 +1,4 @@
-"""Pluggable LLM client for Memagent.
+"""Pluggable LLM client for CrossAgentMemory.
 
 Supports OpenAI, Anthropic, Ollama (local), and graceful fallback.
 Configure via environment variables:

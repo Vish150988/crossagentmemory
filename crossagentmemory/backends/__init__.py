@@ -1,4 +1,4 @@
-"""Pluggable storage backends for Memagent."""
+"""Pluggable storage backends for CrossAgentMemory."""
 
 from __future__ import annotations
 

@@ -1,20 +1,20 @@
 services:
   postgres:
     image: pgvector/pgvector:pg17
-    container_name: memagent-postgres
+    container_name: crossagentmemory-postgres
     environment:
-      POSTGRES_USER: memagent
-      POSTGRES_PASSWORD: memagent
-      POSTGRES_DB: memagent
+      POSTGRES_USER: crossagentmemory
+      POSTGRES_PASSWORD: crossagentmemory
+      POSTGRES_DB: crossagentmemory
     ports:
       - "5432:5432"
     volumes:
-      - MEMAGENT_pgdata:/var/lib/postgresql/data
+      - CROSSAGENTMEMORY_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U memagent"]
+      test: ["CMD-SHELL", "pg_isready -U crossagentmemory"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
-  MEMAGENT_pgdata:
+  CROSSAGENTMEMORY_pgdata:

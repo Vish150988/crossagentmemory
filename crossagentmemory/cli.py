@@ -1,4 +1,4 @@
-"""CLI interface for Memagent."""
+"""CLI interface for CrossAgentMemory."""
 
 from __future__ import annotations
 
@@ -54,7 +54,7 @@ def _get_project() -> str:
 @click.group()
 @click.version_option(version="0.3.5")
 def main() -> None:
-    """Memagent — Cross-agent memory layer for AI coding agents."""
+    """CrossAgentMemory — Cross-agent memory layer for AI coding agents."""
     pass
 
 
@@ -119,7 +119,7 @@ def capture(
     project = project or _get_project()
     engine = MemoryEngine()
 
-    session_id = os.environ.get("MEMAGENT_SESSION", str(uuid.uuid4())[:8])
+    session_id = os.environ.get("CROSSAGENTMEMORY_SESSION", str(uuid.uuid4())[:8])
 
     if auto_tag and not tags:
         from .llm_features import auto_tag_memory
@@ -206,11 +206,11 @@ def team() -> None:
 @click.option("--project", "-p", help="Project name")
 @click.option("--cwd", type=click.Path(), default=".", help="Project directory")
 def team_export_cmd(project: str | None, cwd: str) -> None:
-    """Export memories to .memagent/ for team sharing."""
+    """Export memories to .crossagentmemory/ for team sharing."""
     project = project or _get_project()
     path = team_export(project, cwd=Path(cwd))
     console.print(f"[green][OK][/green] Exported team memory to [bold]{path}[/bold]")
-    console.print("[dim]Commit the .memagent/ folder to share with your team.[/dim]")
+    console.print("[dim]Commit the .crossagentmemory/ folder to share with your team.[/dim]")
 
 
 @team.command("import")
@@ -218,7 +218,7 @@ def team_export_cmd(project: str | None, cwd: str) -> None:
 @click.option("--cwd", type=click.Path(), default=".", help="Project directory")
 @click.option("--dry-run", is_flag=True, help="Preview without importing")
 def team_import_cmd(project: str | None, cwd: str, dry_run: bool) -> None:
-    """Import team-shared memories from .memagent/."""
+    """Import team-shared memories from .crossagentmemory/."""
     project = project or _get_project()
     stats = team_import(project, cwd=Path(cwd), dry_run=dry_run)
     mode = "[DRY RUN] " if dry_run else ""
@@ -289,7 +289,7 @@ def capture_auto(project: str | None, sources: str, dry_run: bool) -> None:
 
 @main.command()
 def mcp() -> None:
-    """Start the memagent mcp server (stdio)."""
+    """Start the crossagentmemory mcp server (stdio)."""
     try:
         from .mcp_server import main as mcp_main
     except ImportError as e:
@@ -303,7 +303,7 @@ def mcp() -> None:
 @click.option("--host", default="127.0.0.1", help="Host to bind")
 @click.option("--port", default=8745, help="Port to bind")
 def dashboard(host: str, port: int) -> None:
-    """Start the Memagent web dashboard."""
+    """Start the CrossAgentMemory web dashboard."""
     try:
         from .dashboard import run_dashboard
     except ImportError as e:
@@ -344,7 +344,7 @@ def sync(project: str | None) -> None:
 
 @main.group()
 def hook() -> None:
-    """Manage git hooks for Memagent."""
+    """Manage git hooks for CrossAgentMemory."""
     pass
 
 
@@ -363,9 +363,9 @@ def hook_install() -> None:
 
 @hook.command("uninstall")
 def hook_uninstall() -> None:
-    """Remove Memagent git hooks."""
+    """Remove CrossAgentMemory git hooks."""
     uninstall_hooks()
-    console.print("[green][OK][/green] Removed Memagent git hooks.")
+    console.print("[green][OK][/green] Removed CrossAgentMemory git hooks.")
 
 
 @main.command()
@@ -392,7 +392,7 @@ def stats() -> None:
     engine = MemoryEngine()
     data = engine.stats()
 
-    console.print("[bold]memagent stats[/bold]\n")
+    console.print("[bold]crossagentmemory stats[/bold]\n")
     console.print(f"Total memories: {data['total_memories']}")
     console.print(f"Projects: {data['projects']}")
     console.print(f"Sessions: {data['sessions']}")
@@ -717,7 +717,7 @@ def backup(project: str | None, output: str | None) -> None:
     engine = MemoryEngine()
 
     date_str = __import__("datetime").datetime.now().strftime("%Y%m%d")
-    default_name = f"memagent-backup-{project or 'all'}-{date_str}.zip"
+    default_name = f"crossagentmemory-backup-{project or 'all'}-{date_str}.zip"
     out_path = Path(output) if output else Path.cwd() / default_name
 
     stats = create_backup(engine, out_path, project=project)
@@ -861,7 +861,7 @@ def check_conflicts(project: str | None) -> None:
 @click.option("--host", default="127.0.0.1", help="Host to bind")
 @click.option("--port", default=8746, help="Port to bind")
 def server(host: str, port: int) -> None:
-    """Start the Memagent REST API server."""
+    """Start the CrossAgentMemory REST API server."""
     try:
         from .server import run_server
     except ImportError as e:

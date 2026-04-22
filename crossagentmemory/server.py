@@ -1,6 +1,6 @@
-"""REST API server for Memagent.
+"""REST API server for CrossAgentMemory.
 
-Run with: memagent server
+Run with: crossagentmemory server
 Requires: pip install fastapi uvicorn
 
 Endpoints:
@@ -41,7 +41,7 @@ except ImportError as e:
         "REST API requires fastapi. Install with: pip install fastapi uvicorn"
     ) from e
 
-app = FastAPI(title="Memagent API", version="0.3.0")
+app = FastAPI(title="CrossAgentMemory API", version="0.3.0")
 
 
 def _engine() -> MemoryEngine:
@@ -85,7 +85,7 @@ def api_create_memory(payload: dict[str, Any]) -> dict[str, Any]:
     entry = MemoryEntry(
         project=payload.get("project", "default"),
         session_id=payload.get(
-            "session_id", os.environ.get("MEMAGENT_SESSION", str(uuid.uuid4())[:8])
+            "session_id", os.environ.get("CROSSAGENTMEMORY_SESSION", str(uuid.uuid4())[:8])
         ),
         category=payload.get("category", "fact"),
         content=payload["content"],

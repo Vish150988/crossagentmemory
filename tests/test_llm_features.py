@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.llm_features import (
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.llm_features import (
     auto_tag_memory,
     detect_conflicts,
     generate_weekly_digest,

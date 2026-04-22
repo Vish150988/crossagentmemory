@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from memagent.core import MemoryEngine
-from memagent.importers import import_from_json, import_from_markdown
+from crossagentmemory.core import MemoryEngine
+from crossagentmemory.importers import import_from_json, import_from_markdown
 
 
 def test_import_from_markdown(tmp_path: Path) -> None:

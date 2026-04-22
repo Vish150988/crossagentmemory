@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.graph import build_memory_graph, get_category_clusters, get_timeline
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.graph import build_memory_graph, get_category_clusters, get_timeline
 
 
 def test_build_memory_graph_empty() -> None:

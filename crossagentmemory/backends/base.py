@@ -1,4 +1,4 @@
-"""Abstract base class for Memagent storage backends."""
+"""Abstract base class for CrossAgentMemory storage backends."""
 
 from __future__ import annotations
 

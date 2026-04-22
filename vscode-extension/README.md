@@ -1,4 +1,4 @@
-# Memagent VS Code Extension
+# CrossAgentMemory VS Code Extension
 
 Capture and recall AI agent memories directly from VS Code.
 
@@ -13,24 +13,24 @@ Capture and recall AI agent memories directly from VS Code.
 
 ## Requirements
 
-- Memagent CLI installed: `pip install memagent`
+- CrossAgentMemory CLI installed: `pip install crossagentmemory`
 
 ## Usage
 
 Open Command Palette (`Ctrl+Shift+P`) and type:
 
-- `Memagent: Capture Memory`
-- `Memagent: Recall Memories`
-- `Memagent: Search Memories`
-- `Memagent: Load Context Brief`
-- `Memagent: Sync CLAUDE.md`
+- `CrossAgentMemory: Capture Memory`
+- `CrossAgentMemory: Recall Memories`
+- `CrossAgentMemory: Search Memories`
+- `CrossAgentMemory: Load Context Brief`
+- `CrossAgentMemory: Sync CLAUDE.md`
 
 ## Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `memagent.project` | `""` | Project name (auto-detected from workspace if empty) |
-| `memagent.autoCapture` | `false` | Auto-capture on file save |
+| `crossagentmemory.project` | `""` | Project name (auto-detected from workspace if empty) |
+| `crossagentmemory.autoCapture` | `false` | Auto-capture on file save |
 
 ## Install from Source
 

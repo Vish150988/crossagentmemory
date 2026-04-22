@@ -8,7 +8,7 @@ import pytest
 
 pytest.importorskip("fastmcp")
 
-from memagent.mcp_server import (
+from crossagentmemory.mcp_server import (
     memory_capture,
     memory_recall,
     memory_search,

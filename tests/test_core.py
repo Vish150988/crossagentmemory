@@ -3,7 +3,7 @@
 import tempfile
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
+from crossagentmemory.core import MemoryEngine, MemoryEntry
 
 
 def test_init_creates_db():

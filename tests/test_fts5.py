@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from memagent import MemoryEngine, MemoryEntry
+from crossagentmemory import MemoryEngine, MemoryEntry
 
 
 class TestFTS5:

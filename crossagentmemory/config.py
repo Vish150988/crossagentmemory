@@ -1,6 +1,6 @@
-"""Configuration management for Memagent.
+"""Configuration management for CrossAgentMemory.
 
-Reads from ~/.memagent/config.yaml (created on first access if missing).
+Reads from ~/.crossagentmemory/config.yaml (created on first access if missing).
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 CONFIG_PATH = DEFAULT_MEMORY_DIR / "config.yaml"
 
-DEFAULT_CONFIG = """# Memagent configuration
+DEFAULT_CONFIG = """# CrossAgentMemory configuration
 # Restart your agent or re-create MemoryEngine for changes to take effect.
 
 # Storage backend: sqlite | postgres | auto
@@ -79,10 +79,10 @@ def resolve_backend_from_config() -> dict[str, Any]:
     """
     kwargs: dict[str, Any] = {}
 
-    backend = os.environ.get("MEMAGENT_BACKEND") or get_config_value("backend", "auto")
+    backend = os.environ.get("CROSSAGENTMEMORY_BACKEND") or get_config_value("backend", "auto")
     kwargs["backend"] = backend
 
-    db_path = os.environ.get("MEMAGENT_DB_PATH") or get_config_value("db_path")
+    db_path = os.environ.get("CROSSAGENTMEMORY_DB_PATH") or get_config_value("db_path")
     if db_path:
         kwargs["db_path"] = Path(db_path)
 

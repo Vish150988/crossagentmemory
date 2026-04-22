@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from memagent.backends import SQLiteBackend
-from memagent.backends.base import MemoryBackend
-from memagent.core import MemoryEngine, MemoryEntry
+from crossagentmemory.backends import SQLiteBackend
+from crossagentmemory.backends.base import MemoryBackend
+from crossagentmemory.core import MemoryEngine, MemoryEntry
 
 
 def test_sqlite_backend_is_memory_backend() -> None:
@@ -60,7 +60,7 @@ def test_memory_engine_list_projects(tmp_path: Path) -> None:
 
 def test_postgres_backend_not_available_without_psycopg() -> None:
     try:
-        from memagent.backends import PostgresBackend  # noqa: F401
+        from crossagentmemory.backends import PostgresBackend  # noqa: F401
 
         # If import succeeds, psycopg is installed — skip this test
         pytest.skip("psycopg is installed")
@@ -76,7 +76,7 @@ def test_postgres_backend_crud() -> None:
     if not os.environ.get("DATABASE_URL"):
         pytest.skip("DATABASE_URL not set")
 
-    from memagent.backends import PostgresBackend
+    from crossagentmemory.backends import PostgresBackend
 
     if PostgresBackend is None:
         pytest.skip("psycopg not installed")

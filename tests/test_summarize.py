@@ -3,8 +3,8 @@
 import tempfile
 from pathlib import Path
 
-from memagent.core import MemoryEngine, MemoryEntry
-from memagent.summarize import summarize_project, summarize_session
+from crossagentmemory.core import MemoryEngine, MemoryEntry
+from crossagentmemory.summarize import summarize_project, summarize_session
 
 
 def test_summarize_project():

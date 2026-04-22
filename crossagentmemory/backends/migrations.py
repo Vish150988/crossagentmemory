@@ -1,4 +1,4 @@
-"""Schema versioning and migrations for Memagent backends."""
+"""Schema versioning and migrations for CrossAgentMemory backends."""
 
 from __future__ import annotations
 
