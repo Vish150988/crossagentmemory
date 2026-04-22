@@ -66,3 +66,43 @@ def test_postgres_backend_not_available_without_psycopg() -> None:
         pytest.skip("psycopg is installed")
     except ImportError:
         pass
+
+
+def test_postgres_backend_crud() -> None:
+    """Test Postgres backend CRUD when DATABASE_URL is available."""
+    import os
+
+    if not os.environ.get("DATABASE_URL"):
+        pytest.skip("DATABASE_URL not set")
+
+    from agentmemory.backends import PostgresBackend
+
+    backend = PostgresBackend()
+    backend.init()
+
+    entry = MemoryEntry(
+        project="pgtest",
+        session_id="s1",
+        content="postgres hello",
+        category="fact",
+    )
+    memory_id = backend.store(entry)
+    assert memory_id > 0
+
+    memories = backend.recall(project="pgtest")
+    assert len(memories) == 1
+    assert memories[0].content == "postgres hello"
+
+    retrieved = backend.get_memory_by_id(memory_id)
+    assert retrieved is not None
+    assert retrieved.content == "postgres hello"
+
+    backend.update_memory(memory_id, {"confidence": 0.5})
+    updated = backend.get_memory_by_id(memory_id)
+    assert updated.confidence == 0.5
+
+    backend.delete_memory(memory_id)
+    assert backend.get_memory_by_id(memory_id) is None
+
+    # Clean up project context if any
+    backend.delete_project("pgtest")

@@ -30,6 +30,7 @@ class SQLiteBackend(MemoryBackend):
     def init(self) -> None:
         conn = self._connection()
         try:
+            conn.execute("PRAGMA journal_mode=WAL")
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS memories (
