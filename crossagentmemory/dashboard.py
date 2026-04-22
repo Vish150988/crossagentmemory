@@ -63,7 +63,9 @@ INDEX_HTML = """<!DOCTYPE html>
   .filters button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
   table { width:100%; border-collapse:collapse; font-size:.9rem; }
   th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--border); }
-  th { color:var(--muted); text-transform:uppercase; font-size:.75rem; }
+  th { color:var(--muted); text-transform:uppercase; font-size:.75rem; cursor:pointer; user-select:none; }
+  th:hover { color:var(--accent); }
+  th .sort-indicator { margin-left:.3rem; font-size:.6rem; opacity:.6; }
   .badge { display:inline-block; padding:.15rem .5rem; border-radius:4px; font-size:.75rem; font-weight:600; }
   .badge-fact { background:var(--badge-fact-bg); color:var(--badge-fact-text); }
   .badge-decision { background:var(--badge-decision-bg); color:var(--badge-decision-text); }
@@ -108,6 +110,8 @@ INDEX_HTML = """<!DOCTYPE html>
 <script>
 let currentProject = '';
 let autoRefresh = null;
+let currentSort = { column: 'id', direction: 'asc' };
+let allMemories = [];
 
 function getTheme(){ return localStorage.getItem('theme') || 'dark'; }
 function setTheme(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t); }
@@ -134,14 +138,27 @@ function selectProject(p) {
   loadData();
 }
 
-async function loadStats(project) {
-  const data = await fetchJSON('/api/stats?project='+encodeURIComponent(project));
-  const el=document.getElementById('stats');
-  el.innerHTML=`
-    <div class="card"><h3>Total Memories</h3><div class="big">${data.total_memories||0}</div></div>
-    <div class="card"><h3>Projects</h3><div class="big">${data.projects||0}</div></div>
-    <div class="card"><h3>Sessions</h3><div class="big">${data.sessions||0}</div></div>
-    <div class="card"><h3>Categories</h3><div class="big">${Object.keys(data.by_category||{}).length}</div></div>
+function computeStats(memories) {
+  const byCategory = {};
+  memories.forEach(m => {
+    byCategory[m.category] = (byCategory[m.category] || 0) + 1;
+  });
+  const sessions = new Set(memories.map(m => m.session_id).filter(Boolean));
+  return {
+    total_memories: memories.length,
+    projects: new Set(memories.map(m => m.project)).size,
+    sessions: sessions.size,
+    by_category: byCategory
+  };
+}
+
+function renderStats(stats) {
+  const el = document.getElementById('stats');
+  el.innerHTML = `
+    <div class="card"><h3>Total Memories</h3><div class="big">${stats.total_memories||0}</div></div>
+    <div class="card"><h3>Projects</h3><div class="big">${stats.projects||0}</div></div>
+    <div class="card"><h3>Sessions</h3><div class="big">${stats.sessions||0}</div></div>
+    <div class="card"><h3>Categories</h3><div class="big">${Object.keys(stats.by_category||{}).length}</div></div>
   `;
 }
 
@@ -159,23 +176,58 @@ async function loadRecent() {
   `).join('');
 }
 
-async function loadMemories(project, keyword='', category='') {
-  currentProject = project;
-  document.getElementById('project-label').textContent = project || 'All projects';
-  let url = '/api/memories?project='+encodeURIComponent(project);
-  if(category) url += '&category='+encodeURIComponent(category);
-  if(keyword) url = '/api/search?project='+encodeURIComponent(project)+'&keyword='+encodeURIComponent(keyword);
-  const data = await fetchJSON(url);
-  const memories = data.memories || data.results || [];
-  const el=document.getElementById('memories');
-  if(!memories.length){ el.innerHTML='<div class="empty">No memories found.</div>'; return; }
-  let html='<table><tr><th>ID</th><th>Category</th><th>Content</th><th>Source</th><th>Time</th><th></th></tr>';
-  for(const m of memories){
+function sortMemories(memories, column, direction) {
+  return [...memories].sort((a, b) => {
+    let va = a[column] || '';
+    let vb = b[column] || '';
+    if (column === 'id' || column === 'confidence') {
+      va = parseFloat(va) || 0;
+      vb = parseFloat(vb) || 0;
+    } else {
+      va = String(va).toLowerCase();
+      vb = String(vb).toLowerCase();
+    }
+    if (va < vb) return direction === 'asc' ? -1 : 1;
+    if (va > vb) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function toggleSort(column) {
+  if (currentSort.column === column) {
+    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort.column = column;
+    currentSort.direction = 'asc';
+  }
+  renderMemories(allMemories);
+}
+
+function renderMemories(memories) {
+  allMemories = memories;
+  const sorted = sortMemories(memories, currentSort.column, currentSort.direction);
+  const el = document.getElementById('memories');
+  if(!sorted.length){ el.innerHTML='<div class="empty">No memories found.</div>'; return; }
+
+  const sortIcon = (col) => currentSort.column === col ? (currentSort.direction === 'asc' ? '▲' : '▼') : '⇅';
+
+  let html = `<table>
+    <tr>
+      <th onclick="toggleSort('id')">ID<span class="sort-indicator">${sortIcon('id')}</span></th>
+      <th onclick="toggleSort('category')">Category<span class="sort-indicator">${sortIcon('category')}</span></th>
+      <th onclick="toggleSort('content')">Content<span class="sort-indicator">${sortIcon('content')}</span></th>
+      <th onclick="toggleSort('source')">Source<span class="sort-indicator">${sortIcon('source')}</span></th>
+      <th onclick="toggleSort('confidence')">Confidence<span class="sort-indicator">${sortIcon('confidence')}</span></th>
+      <th onclick="toggleSort('timestamp')">Time<span class="sort-indicator">${sortIcon('timestamp')}</span></th>
+      <th></th>
+    </tr>`;
+  for(const m of sorted){
     html+=`<tr>
       <td>#${m.id}</td>
       <td><span class="badge badge-${m.category}">${m.category}</span></td>
-      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">confidence: ${(m.confidence||1).toFixed(2)}${m.tags ? ' · tags: ' + escapeHtml(m.tags) : ''}</span></td>
+      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">${m.tags ? 'tags: ' + escapeHtml(m.tags) : ''}</span></td>
       <td>${escapeHtml(m.source||'-')}</td>
+      <td>${(m.confidence||1).toFixed(2)}</td>
       <td>${(m.timestamp||'').replace('T',' ').substring(0,16)}</td>
       <td>
         <button class="delete-btn" style="background:var(--accent);margin-right:.3rem;" onclick="editMemory(${m.id},'${escapeHtml(m.content).replace(/'/g,'&#39;')}','${m.category}',${m.confidence},'${escapeHtml(m.tags||'').replace(/'/g,'&#39;')}')">✎</button>
@@ -185,6 +237,19 @@ async function loadMemories(project, keyword='', category='') {
   }
   html+='</table>';
   el.innerHTML=html;
+}
+
+async function loadMemories(project, keyword='', category='') {
+  currentProject = project;
+  document.getElementById('project-label').textContent = project || 'All projects';
+  let url = '/api/memories?project='+encodeURIComponent(project);
+  if(category) url += '&category='+encodeURIComponent(category);
+  if(keyword) url = '/api/search?project='+encodeURIComponent(project)+'&keyword='+encodeURIComponent(keyword);
+  const data = await fetchJSON(url);
+  const memories = data.memories || data.results || [];
+  renderMemories(memories);
+  // Update KPIs from the filtered data
+  renderStats(computeStats(memories));
 }
 
 async function editMemory(id, content, category, confidence, tags){
@@ -217,7 +282,7 @@ async function loadData(){
   const p=document.getElementById('project-select').value;
   const k=document.getElementById('search-input').value;
   const c=document.getElementById('category-filter').value;
-  await Promise.all([loadStats(p), loadMemories(p,k,c), loadRecent()]);
+  await Promise.all([loadMemories(p,k,c), loadRecent()]);
   document.getElementById('refresh-indicator').textContent = 'Updated '+new Date().toLocaleTimeString();
 }
 
@@ -275,7 +340,7 @@ def api_stats(project: str = "") -> dict[str, Any]:
 def api_memories(
     project: str = "",
     category: str = "",
-    limit: int = 50,
+    limit: int = 100000,
 ) -> dict[str, Any]:
     engine = MemoryEngine()
     memories = engine.recall(
@@ -283,6 +348,8 @@ def api_memories(
         category=category or None,
         limit=limit,
     )
+    # Sort by ID ascending for consistent ordering
+    memories = sorted(memories, key=lambda m: m.id)
     return {
         "memories": [
             {
@@ -308,6 +375,8 @@ def api_search(
 ) -> dict[str, Any]:
     engine = MemoryEngine()
     results = engine.search(keyword, project=project or None, limit=limit)
+    # Sort by ID ascending
+    results = sorted(results, key=lambda m: m.id)
     return {
         "results": [
             {

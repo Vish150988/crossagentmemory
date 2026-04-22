@@ -4,97 +4,24 @@
 
 ## Project
 
-**Name:** crossagentmemory  
-**Version:** 0.3.9  
-**PyPI:** https://pypi.org/project/crossagentmemory/  
-**Repo:** https://github.com/Vish150988/crossagentmemory  
-**Python:** >=3.10  
-
-Open-source cross-agent memory layer for AI coding agents. Provides persistent memory storage, semantic search, project context, and sync capabilities across Claude, Codex, Cursor, and other AI agents.
-
-## Architecture
-
-### Core Abstraction
-- `MemoryBackend` (abstract base in `backends/base.py`) — all storage backends implement this interface.
-- `MemoryEngine` (`core.py`) — high-level API that delegates to a backend.
-- `MemoryEntry` (`core.py`) — dataclass for a memory record with fields: `id`, `project`, `session_id`, `timestamp`, `category`, `content`, `confidence`, `source`, `tags`, `metadata`.
-
-### Storage Backends
-| Backend | File | Extra | Notes |
-|---------|------|-------|-------|
-| SQLite | `backends/sqlite.py` | core | Default. FTS5 enabled. |
-| PostgreSQL | `backends/postgres.py` | `[postgres]` | Uses `psycopg>=3.0`. Supports pgvector. |
-| ChromaDB | `backends/chroma.py` | `[chroma]` | Vector search via `chromadb>=0.5.0`. Default embedding dim = 384 (`all-MiniLM-L6-v2`). |
-| Redis | `backends/redis.py` | `[redis]` | Hash-based storage via `redis>=5.0`. |
-
-### Key Modules
-- `core.py` — `MemoryEngine`, `MemoryEntry`, CRUD operations.
-- `semantic.py` — Semantic search using sentence-transformers or TF-IDF fallback.
-- `search.py` / `recall.py` — Search and retrieval APIs.
-- `decay.py` — Memory reinforcement and decay over time.
-- `backup.py` — ZIP and JSON backup/restore.
-- `cloud_sync.py` — Encrypted ZIP export/import with optional S3/R2 upload (`[cloud]` extra: `boto3`, `cryptography`).
-- `importers.py` — Import from Markdown, JSON, Obsidian vaults, Notion exports.
-- `cli.py` — Click-based CLI (`crossagentmemory` / `cam`).
-- `dashboard.py` — FastAPI web dashboard (`[dashboard]` extra).
-- `mcp_server.py` — MCP (Model Context Protocol) server integration (`[mcp]` extra).
-- `llm.py` / `llm_features.py` — LLM client abstractions (OpenAI, Anthropic, local fallback).
-- `auto_capture.py` — Git log and shell history capture.
-- `daemon.py` — Background capture daemon.
-- `graph.py` — Memory graph visualization.
-- `social.py` — Social media posting integration.
-- `team_sync.py` — Team memory export/import.
-- `config.py` — YAML config file management.
+Project: crossagentmemory
 
 ## Conventions & Preferences
 
-### Code Style
-- **Ruff** for linting (`line-length = 100`, `target-version = py310`).
-- `from __future__ import annotations` in all new files.
-- Type hints encouraged; use `str | None` style (PEP 604).
-
-### Optional Dependencies
-- Lazy-import optional heavy deps inside functions (e.g., `import chromadb` inside `_get_client()`).
-- Tests for optional-deps must use `pytest.importorskip("module")` before importing from the module.
-- Pattern: Redis tests skip when Redis unavailable; Postgres tests skip when `psycopg` missing.
-
-### pyproject.toml Extras
-```
-dev       = [pytest, pytest-cov, ruff, pyyaml]
-embeddings = [sentence-transformers]
-mcp       = [fastmcp]
-dashboard = [fastapi, uvicorn]
-chroma    = [chromadb]
-redis     = [redis]
-cloud     = [boto3, cryptography]
-postgres  = [psycopg]
-all       = [everything above]
-```
-
-### Testing
-- Run full suite: `python -m pytest tests/ -v`
-- Ruff check: `python -m ruff check crossagentmemory/ tests/`
-- 114 tests total (approx). Some skip when external services unavailable.
+_None recorded yet._
 
 ## Recent Decisions
 
-1. **Renames:** `agentmemory` → `memagent` → `crossagentmemory`. Repo and PyPI name finalized as `crossagentmemory`. Trusted publishing configured on PyPI for `Vish150988/crossagentmemory`.
-2. **Backend expansion:** Added ChromaDB and Redis backends alongside SQLite and PostgreSQL.
-3. **Importers:** Added Obsidian vault importer (frontmatter parsing) and Notion exporter importer (ZIP + CSV support).
-4. **Cloud sync:** Added Fernet-encrypted ZIP export/import with optional S3/R2 upload via `boto3`.
-5. **CI fix (2026-04-22):** Matrix jobs now install `.[dev,all]` so Chroma/cloud tests run. Previously failed because only `.[dev]` was installed. Added `importorskip` guards for local test runs without all extras.
-6. **pyproject.toml extras cleanup:** `chroma` extra no longer incorrectly bundles `redis`, `boto3`, `cryptography`. `all` extra now includes `redis`, `boto3`, `cryptography`.
+_None recorded yet._
 
 ## Known Issues
 
-- **Windows Chroma temp cleanup:** Occasional `PermissionError` on `data_level0.bin` during `tempfile.TemporaryDirectory` teardown. Mitigated with `ignore_cleanup_errors=True`.
-- **Redis tests:** Always skip in CI because no Redis service is started (acceptable — pure import tests are covered by `importorskip`).
-- **Postgres tests:** Run only in dedicated `test-postgres` job with `pgvector/pgvector:pg17` service.
+_None recorded yet._
 
-## Repo Topics
+## Architecture
 
-`ai`, `agents`, `memory`, `claude`, `codex`, `cursor`, `llm`, `mcp`, `vector-database`, `developer-tools`
+_None recorded yet._
 
 ---
 
-*Last updated: 2026-04-22T12:45:00+00:00*
+*Last updated: 2026-04-22T15:15:17.955082+00:00*
