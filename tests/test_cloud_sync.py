@@ -5,6 +5,11 @@ from __future__ import annotations
 import io
 from unittest.mock import MagicMock, patch
 
+import pytest
+
+pytest.importorskip("cryptography")
+pytest.importorskip("boto3")
+
 from crossagentmemory import MemoryEntry
 from crossagentmemory.cloud_sync import _export_to_zip, _get_fernet, _import_from_zip
 

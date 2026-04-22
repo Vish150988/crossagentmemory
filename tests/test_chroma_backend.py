@@ -7,6 +7,8 @@ from pathlib import Path
 
 import pytest
 
+pytest.importorskip("chromadb")
+
 from crossagentmemory import MemoryEntry
 from crossagentmemory.backends.chroma import ChromaBackend
 

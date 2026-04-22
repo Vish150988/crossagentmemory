@@ -48,9 +48,6 @@ dashboard = [
 ]
 chroma = [
     "chromadb>=0.5.0",
-    "redis>=5.0",
-    "boto3>=1.34",
-    "cryptography>=42.0",
 ]
 redis = [
     "redis>=5.0",
@@ -68,8 +65,10 @@ all = [
     "fastapi>=0.110",
     "uvicorn>=0.25",
     "psycopg>=3.0",
-    "pyyaml>=6.0",
     "chromadb>=0.5.0",
+    "redis>=5.0",
+    "boto3>=1.34",
+    "cryptography>=42.0",
 ]
 
 [project.scripts]
