@@ -15,6 +15,7 @@ Working directory: C:\Users\vishn\projects\agentmemory
 
 ## Recent Decisions
 
+- CI was failing because test_postgres_backend_crud called fetchall() on CREATE TABLE with psycopg v3. Fixed in migrations.py by checking cur.description before fetchall.
 - Architecture decision: Modular file-per-feature design so each feature can be added without breaking existing code
 - Architecture decision: SQLite single-file storage over client-server database for portability and zero-config deployment
 
@@ -24,8 +25,10 @@ Working directory: C:\Users\vishn\projects\agentmemory
 
 ## Architecture
 
+- PostgresBackend now caches connections instead of open/close per query. Auto-reconnects on stale connections. Close method available for explicit cleanup.
+- Working on AgentMemory v0.3.4 — pluggable SQLite/PostgreSQL backends, schema versioning, connection pooling. CI green on GitHub Actions. Next: backup/restore CLI or config file.
 - User is Vish150988 on GitHub, @Vicky_1388 on Twitter, building open-source AI tools
 
 ---
 
-*Last updated: 2026-04-22T01:19:06.398592+00:00*
+*Last updated: 2026-04-22T01:37:35.441517+00:00*

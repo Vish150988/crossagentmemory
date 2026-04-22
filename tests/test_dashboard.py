@@ -79,3 +79,33 @@ def test_api_projects(client: TestClient) -> None:
     data = resp.json()
     assert "proj-a" in data["projects"]
     assert "proj-b" in data["projects"]
+
+
+def test_api_delete_memory(client: TestClient) -> None:
+    resp = client.post("/api/capture", json={
+        "project": "delete-test",
+        "content": "to be deleted",
+        "category": "fact",
+    })
+    memory_id = resp.json()["memory_id"]
+
+    resp = client.delete(f"/api/memories/{memory_id}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "deleted"
+
+    resp = client.get("/api/memories?project=delete-test")
+    assert not any(m["id"] == memory_id for m in resp.json()["memories"])
+
+
+def test_api_export(client: TestClient) -> None:
+    client.post("/api/capture", json={
+        "project": "export-test",
+        "content": "export me",
+        "category": "decision",
+    })
+    resp = client.get("/api/export?project=export-test")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["project"] == "export-test"
+    assert data["count"] >= 1
+    assert any(m["content"] == "export me" for m in data["memories"])

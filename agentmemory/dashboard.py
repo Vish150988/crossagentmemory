@@ -27,49 +27,112 @@ INDEX_HTML = """<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AgentMemory Dashboard</title>
 <style>
-  :root { --bg:#0f0f23; --panel:#1a1a2e; --text:#e0e0e0; --accent:#4cc9f0; --muted:#888; }
+  :root[data-theme="dark"] {
+    --bg:#0f0f23; --panel:#1a1a2e; --text:#e0e0e0; --accent:#4cc9f0;
+    --muted:#888; --border:#333; --success:#4ade80; --danger:#f87171;
+    --badge-fact-bg:#2a4d3e; --badge-fact-text:#4ade80;
+    --badge-decision-bg:#3e3a2a; --badge-decision-text:#facc15;
+    --badge-action-bg:#2a3a4d; --badge-action-text:#60a5fa;
+    --badge-preference-bg:#4d2a4d; --badge-preference-text:#f472b6;
+    --badge-error-bg:#4d2a2a; --badge-error-text:#f87171;
+  }
+  :root[data-theme="light"] {
+    --bg:#f8f9fa; --panel:#ffffff; --text:#212529; --accent:#0d6efd;
+    --muted:#6c757d; --border:#dee2e6; --success:#198754; --danger:#dc3545;
+    --badge-fact-bg:#d1e7dd; --badge-fact-text:#0f5132;
+    --badge-decision-bg:#fff3cd; --badge-decision-text:#664d03;
+    --badge-action-bg:#cfe2ff; --badge-action-text:#084298;
+    --badge-preference-bg:#f8d7da; --badge-preference-text:#842029;
+    --badge-error-bg:#f5c2c7; --badge-error-text:#58151c;
+  }
   * { box-sizing:border-box; }
-  body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); }
-  header { padding:1rem 2rem; border-bottom:1px solid #333; display:flex; justify-content:space-between; align-items:center; }
+  body { margin:0; font-family:system-ui,-apple-system,sans-serif; background:var(--bg); color:var(--text); transition:background .2s,color .2s; }
+  header { padding:1rem 2rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.5rem; }
   header h1 { margin:0; font-size:1.4rem; color:var(--accent); }
-  .container { max-width:1200px; margin:0 auto; padding:1.5rem 2rem; }
-  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-bottom:1.5rem; }
-  .card { background:var(--panel); padding:1rem; border-radius:8px; }
-  .card h3 { margin:0 0 .5rem; font-size:.85rem; text-transform:uppercase; color:var(--muted); }
-  .card .big { font-size:1.8rem; font-weight:700; color:var(--accent); }
-  .filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; }
-  .filters input, .filters select { padding:.5rem .8rem; border-radius:6px; border:none; background:var(--panel); color:var(--text); font-size:.9rem; }
-  .filters button { padding:.5rem 1rem; border-radius:6px; border:none; background:var(--accent); color:#000; font-weight:600; cursor:pointer; }
+  .container { max-width:1400px; margin:0 auto; padding:1.5rem 2rem; display:grid; grid-template-columns:1fr 300px; gap:1.5rem; }
+  @media (max-width:900px){ .container{ grid-template-columns:1fr; } }
+  .main { min-width:0; }
+  .sidebar { display:flex; flex-direction:column; gap:1rem; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:1rem; margin-bottom:1.5rem; }
+  .card { background:var(--panel); padding:1rem; border-radius:8px; border:1px solid var(--border); }
+  .card h3 { margin:0 0 .5rem; font-size:.75rem; text-transform:uppercase; color:var(--muted); }
+  .card .big { font-size:1.6rem; font-weight:700; color:var(--accent); }
+  .filters { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem; align-items:center; }
+  .filters input, .filters select { padding:.5rem .8rem; border-radius:6px; border:1px solid var(--border); background:var(--panel); color:var(--text); font-size:.9rem; }
+  .filters button { padding:.5rem 1rem; border-radius:6px; border:none; background:var(--accent); color:#fff; font-weight:600; cursor:pointer; }
+  .filters button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
   table { width:100%; border-collapse:collapse; font-size:.9rem; }
-  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid #333; }
+  th, td { text-align:left; padding:.6rem .8rem; border-bottom:1px solid var(--border); }
   th { color:var(--muted); text-transform:uppercase; font-size:.75rem; }
   .badge { display:inline-block; padding:.15rem .5rem; border-radius:4px; font-size:.75rem; font-weight:600; }
-  .badge-fact { background:#2a4d3e; color:#4ade80; }
-  .badge-decision { background:#3e3a2a; color:#facc15; }
-  .badge-action { background:#2a3a4d; color:#60a5fa; }
-  .badge-preference { background:#4d2a4d; color:#f472b6; }
-  .badge-error { background:#4d2a2a; color:#f87171; }
+  .badge-fact { background:var(--badge-fact-bg); color:var(--badge-fact-text); }
+  .badge-decision { background:var(--badge-decision-bg); color:var(--badge-decision-text); }
+  .badge-action { background:var(--badge-action-bg); color:var(--badge-action-text); }
+  .badge-preference { background:var(--badge-preference-bg); color:var(--badge-preference-text); }
+  .badge-error { background:var(--badge-error-bg); color:var(--badge-error-text); }
   .confidence { font-size:.8rem; color:var(--muted); }
   .empty { color:var(--muted); padding:2rem; text-align:center; }
+  .recent-item { padding:.6rem; border-bottom:1px solid var(--border); font-size:.85rem; }
+  .recent-item .meta { font-size:.75rem; color:var(--muted); margin-top:.2rem; }
+  .recent-item .cat { font-size:.7rem; text-transform:uppercase; font-weight:600; }
+  .delete-btn { background:var(--danger); color:#fff; border:none; border-radius:4px; padding:.2rem .5rem; font-size:.75rem; cursor:pointer; }
+  .theme-toggle { background:var(--panel); border:1px solid var(--border); color:var(--text); padding:.4rem .8rem; border-radius:6px; cursor:pointer; font-size:.85rem; }
+  .refresh-indicator { font-size:.75rem; color:var(--muted); margin-left:auto; }
 </style>
 </head>
 <body>
-<header><h1>AgentMemory Dashboard</h1><span id="project-label"></span></header>
+<header>
+  <h1>AgentMemory Dashboard</h1>
+  <span id="project-label" style="color:var(--muted);font-size:.9rem;"></span>
+  <span class="refresh-indicator" id="refresh-indicator"></span>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 Theme</button>
+</header>
 <div class="container">
-  <div class="grid" id="stats"></div>
-  <div class="filters">
-    <input type="text" id="project-input" placeholder="Project name" value="">
-    <input type="text" id="search-input" placeholder="Search memories...">
-    <select id="category-filter"><option value="">All categories</option><option>fact</option><option>decision</option><option>action</option><option>preference</option><option>error</option></select>
-    <button onclick="loadData()">Load</button>
-    <button onclick="captureMemory()">+ Capture</button>
+  <div class="main">
+    <div class="grid" id="stats"></div>
+    <div class="filters">
+      <select id="project-select"><option value="">All projects</option></select>
+      <input type="text" id="search-input" placeholder="Search memories...">
+      <select id="category-filter"><option value="">All categories</option><option>fact</option><option>decision</option><option>action</option><option>preference</option><option>error</option></select>
+      <button onclick="loadData()">Load</button>
+      <button onclick="exportJSON()">⬇ Export JSON</button>
+      <button class="secondary" onclick="captureMemory()">+ Capture</button>
+    </div>
+    <div id="memories"></div>
   </div>
-  <div id="memories"></div>
+  <div class="sidebar">
+    <div class="card"><h3>Recent Captures</h3><div id="recent"></div></div>
+    <div class="card"><h3>Projects</h3><div id="project-list"></div></div>
+  </div>
 </div>
 <script>
 let currentProject = '';
+let autoRefresh = null;
+
+function getTheme(){ return localStorage.getItem('theme') || 'dark'; }
+function setTheme(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('theme', t); }
+function toggleTheme(){ setTheme(getTheme()==='dark' ? 'light' : 'dark'); }
+setTheme(getTheme());
 
 async function fetchJSON(url) { const r=await fetch(url); return r.json(); }
+
+async function loadProjects() {
+  const data = await fetchJSON('/api/projects');
+  const sel = document.getElementById('project-select');
+  sel.innerHTML = '<option value="">All projects</option>';
+  (data.projects || []).forEach(p => {
+    const opt = document.createElement('option'); opt.value = p; opt.textContent = p;
+    sel.appendChild(opt);
+  });
+  const list = document.getElementById('project-list');
+  if(!data.projects.length){ list.innerHTML='<div class="empty">No projects</div>'; return; }
+  list.innerHTML = (data.projects || []).map(p => `<div class="recent-item" style="cursor:pointer;" onclick="selectProject('${p.replace(/'/g,"\\'")}')">${p}</div>`).join('');
+}
+
+function selectProject(p) {
+  document.getElementById('project-select').value = p;
+  loadData();
+}
 
 async function loadStats(project) {
   const data = await fetchJSON('/api/stats?project='+encodeURIComponent(project));
@@ -82,6 +145,20 @@ async function loadStats(project) {
   `;
 }
 
+async function loadRecent() {
+  const data = await fetchJSON('/api/memories?limit=5');
+  const el = document.getElementById('recent');
+  const mems = data.memories || [];
+  if(!mems.length){ el.innerHTML='<div class="empty">No memories yet</div>'; return; }
+  el.innerHTML = mems.map(m => `
+    <div class="recent-item">
+      <span class="cat badge badge-${m.category}">${m.category}</span>
+      <div>${m.content.substring(0,60)}${m.content.length>60?'...':''}</div>
+      <div class="meta">#${m.id} · ${(m.timestamp||'').replace('T',' ').substring(0,16)}</div>
+    </div>
+  `).join('');
+}
+
 async function loadMemories(project, keyword='', category='') {
   currentProject = project;
   document.getElementById('project-label').textContent = project || 'All projects';
@@ -92,37 +169,65 @@ async function loadMemories(project, keyword='', category='') {
   const memories = data.memories || data.results || [];
   const el=document.getElementById('memories');
   if(!memories.length){ el.innerHTML='<div class="empty">No memories found.</div>'; return; }
-  let html='<table><tr><th>ID</th><th>Category</th><th>Content</th><th>Source</th><th>Time</th></tr>';
+  let html='<table><tr><th>ID</th><th>Category</th><th>Content</th><th>Source</th><th>Time</th><th></th></tr>';
   for(const m of memories){
     html+=`<tr>
       <td>#${m.id}</td>
       <td><span class="badge badge-${m.category}">${m.category}</span></td>
-      <td>${m.content.substring(0,120)}${m.content.length>120?'...':''}<br><span class="confidence">confidence: ${(m.confidence||1).toFixed(2)}</span></td>
-      <td>${m.source||'-'}</td>
+      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">confidence: ${(m.confidence||1).toFixed(2)}</span></td>
+      <td>${escapeHtml(m.source||'-')}</td>
       <td>${(m.timestamp||'').replace('T',' ').substring(0,16)}</td>
+      <td><button class="delete-btn" onclick="deleteMemory(${m.id})">×</button></td>
     </tr>`;
   }
   html+='</table>';
   el.innerHTML=html;
 }
 
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 async function loadData(){
-  const p=document.getElementById('project-input').value;
+  const p=document.getElementById('project-select').value;
   const k=document.getElementById('search-input').value;
   const c=document.getElementById('category-filter').value;
-  await loadStats(p);
-  await loadMemories(p,k,c);
+  await Promise.all([loadStats(p), loadMemories(p,k,c), loadRecent()]);
+  document.getElementById('refresh-indicator').textContent = 'Updated '+new Date().toLocaleTimeString();
+}
+
+async function deleteMemory(id){
+  if(!confirm('Delete memory #'+id+'?')) return;
+  await fetch('/api/memories/'+id,{method:'DELETE'});
+  loadData();
 }
 
 async function captureMemory(){
-  const p=prompt('Project:', currentProject); if(!p) return;
+  const p=document.getElementById('project-select').value || prompt('Project:','default'); if(!p) return;
   const content=prompt('Memory content:'); if(!content) return;
   const category=prompt('Category (fact/decision/action/preference/error):','fact')||'fact';
   await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:p,content,category})});
   loadData();
 }
 
-loadData();
+async function exportJSON(){
+  const p=document.getElementById('project-select').value;
+  const data = await fetchJSON('/api/export?project='+encodeURIComponent(p));
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'agentmemory-export-'+(p||'all')+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+if(autoRefresh) clearInterval(autoRefresh);
+autoRefresh = setInterval(loadData, 10000);
+
+loadProjects().then(loadData);
 </script>
 </body>
 </html>
@@ -216,10 +321,45 @@ def api_capture(payload: dict[str, Any]) -> dict[str, Any]:
     return {"status": "stored", "memory_id": memory_id}
 
 
+@app.delete("/api/memories/{memory_id}")
+def api_delete_memory(memory_id: int) -> dict[str, Any]:
+    engine = MemoryEngine()
+    deleted = engine.delete_memory(memory_id)
+    return {"status": "deleted" if deleted else "not_found", "memory_id": memory_id}
+
+
 @app.get("/api/projects")
 def api_projects() -> dict[str, Any]:
     engine = MemoryEngine()
     return {"projects": engine.list_projects()}
+
+
+@app.get("/api/export")
+def api_export(project: str = "") -> dict[str, Any]:
+    engine = MemoryEngine()
+    memories = engine.recall(project=project or None, limit=100000)
+    return {
+        "exported_at": __import__("datetime").datetime.now(
+            __import__("datetime").timezone.utc
+        ).isoformat(),
+        "project": project or "all",
+        "count": len(memories),
+        "memories": [
+            {
+                "id": m.id,
+                "project": m.project,
+                "session_id": m.session_id,
+                "timestamp": m.timestamp,
+                "category": m.category,
+                "content": m.content,
+                "confidence": m.confidence,
+                "source": m.source,
+                "tags": m.tags,
+                "metadata": m.metadata,
+            }
+            for m in memories
+        ],
+    }
 
 
 @app.get("/api/graph")
