@@ -76,6 +76,10 @@ class MemoryBackend(ABC):
         """Retrieve all embeddings for a project matching a model."""
 
     @abstractmethod
+    def list_embedding_models(self, project: str) -> list[str]:
+        """Return all distinct embedding model names for a project."""
+
+    @abstractmethod
     def list_projects(self) -> list[str]:
         """Return a list of all distinct project names."""
 

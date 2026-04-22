@@ -287,6 +287,22 @@ class SQLiteBackend(MemoryBackend):
         finally:
             self._close(conn)
 
+    def list_embedding_models(self, project: str) -> list[str]:
+        conn = self._connection()
+        try:
+            rows = conn.execute(
+                """
+                SELECT DISTINCT e.model_name
+                FROM embeddings e
+                JOIN memories m ON e.memory_id = m.id
+                WHERE m.project = ?
+                """,
+                (project,),
+            ).fetchall()
+            return [row["model_name"] for row in rows]
+        finally:
+            self._close(conn)
+
     def list_projects(self) -> list[str]:
         conn = self._connection()
         try:

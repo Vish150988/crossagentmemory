@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-04-21
+
+### Added
+- Backup and restore system (`agentmemory/backends/backup.py`):
+  - `create_backup()` exports memories, projects, and embeddings to `.zip` or `.json`
+  - `restore_backup()` imports from `.zip` or `.json` with ID remapping
+  - Embeddings are restored by mapping old memory IDs to new ones
+- CLI commands:
+  - `agentmemory backup [--project] [--output]` — creates a dated `.zip` by default
+  - `agentmemory restore <path> [--dry-run]` — restore with preview option
+- `MemoryBackend.list_embedding_models(project)` — returns distinct embedding model names
+- Tests: `tests/test_backup.py` covering zip/json backup, restore, and dry-run
+
 ## [0.3.4] - 2026-04-21
 
 ### Added

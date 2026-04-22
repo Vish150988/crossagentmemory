@@ -371,6 +371,25 @@ class PostgresBackend(MemoryBackend):
             self._conn = None
             raise
 
+    def list_embedding_models(self, project: str) -> list[str]:
+        conn = self._connection()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT DISTINCT e.model_name
+                    FROM embeddings e
+                    JOIN memories m ON e.memory_id = m.id
+                    WHERE m.project = %s
+                    """,
+                    (project,),
+                )
+                return [row[0] for row in cur.fetchall()]
+        except Exception:
+            conn.close()
+            self._conn = None
+            raise
+
     def list_projects(self) -> list[str]:
         conn = self._connection()
         try:

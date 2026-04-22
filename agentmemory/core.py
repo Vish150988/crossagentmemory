@@ -122,6 +122,10 @@ class MemoryEngine:
         """Retrieve all embeddings for a project matching a model."""
         return self.backend.get_embeddings(project, model_name)
 
+    def list_embedding_models(self, project: str) -> list[str]:
+        """Return all distinct embedding model names for a project."""
+        return self.backend.list_embedding_models(project)
+
     def list_projects(self) -> list[str]:
         """Return a list of all distinct project names."""
         return self.backend.list_projects()

@@ -52,7 +52,7 @@ def _get_project() -> str:
 
 
 @click.group()
-@click.version_option(version="0.3.4")
+@click.version_option(version="0.3.5")
 def main() -> None:
     """AgentMemory — Cross-agent memory layer for AI coding agents."""
     pass
@@ -704,6 +704,50 @@ def migrate(
     console.print(f"  To: {to_backend}")
     if projects:
         console.print(f"  Projects: {', '.join(projects)}")
+
+
+@main.command()
+@click.option("--project", "-p", help="Project to backup (default: all)")
+@click.option("--output", "-o", type=click.Path(), help="Output file (.zip or .json)")
+def backup(project: str | None, output: str | None) -> None:
+    """Create a backup of memories, projects, and embeddings."""
+    from .backup import create_backup
+
+    project = project or _get_project()
+    engine = MemoryEngine()
+
+    date_str = __import__("datetime").datetime.now().strftime("%Y%m%d")
+    default_name = f"agentmemory-backup-{project or 'all'}-{date_str}.zip"
+    out_path = Path(output) if output else Path.cwd() / default_name
+
+    stats = create_backup(engine, out_path, project=project)
+    console.print(f"[green][OK][/green] Backup created: [bold]{stats['path']}[/bold]")
+    console.print(f"  Memories: {stats['memories']}")
+    console.print(f"  Projects: {stats['projects']}")
+    console.print(f"  Embeddings: {stats['embeddings']}")
+
+
+@main.command()
+@click.argument("input_path", type=click.Path(exists=True))
+@click.option("--dry-run", is_flag=True, help="Preview without restoring")
+def restore(input_path: str, dry_run: bool) -> None:
+    """Restore memories, projects, and embeddings from a backup."""
+    from .backup import restore_backup
+
+    engine = MemoryEngine()
+    stats = restore_backup(engine, Path(input_path), dry_run=dry_run)
+
+    if dry_run:
+        console.print(f"[yellow][DRY RUN][/yellow] Would restore from [bold]{input_path}[/bold]")
+        console.print(f"  Memories: {stats['memories']}")
+        console.print(f"  Projects: {stats['projects']}")
+        console.print(f"  Embeddings: {stats['embeddings']}")
+        return
+
+    console.print(f"[green][OK][/green] Restored from [bold]{input_path}[/bold]")
+    console.print(f"  Memories: {stats['memories']}")
+    console.print(f"  Projects: {stats['projects']}")
+    console.print(f"  Embeddings: {stats['embeddings']}")
 
 
 @main.command()
