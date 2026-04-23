@@ -51,6 +51,9 @@ def api_list_memories(
     project: str = "",
     category: str = "",
     session_id: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+    at_time: str = "",
     limit: int = 50,
     offset: int = 0,
 ) -> dict[str, Any]:
@@ -59,6 +62,9 @@ def api_list_memories(
         project=project or None,
         category=category or None,
         session_id=session_id or None,
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+        at_time=at_time or None,
         limit=limit,
     )
     return {
@@ -90,6 +96,10 @@ def api_create_memory(payload: dict[str, Any]) -> dict[str, Any]:
         confidence=payload.get("confidence", 1.0),
         source=payload.get("source", "api"),
         tags=payload.get("tags", ""),
+        user_id=payload.get("user_id", ""),
+        tenant_id=payload.get("tenant_id", ""),
+        valid_from=payload.get("valid_from", ""),
+        valid_until=payload.get("valid_until", ""),
     )
     memory_id = engine.store(entry)
     return {"id": memory_id, "status": "created"}
@@ -98,7 +108,10 @@ def api_create_memory(payload: dict[str, Any]) -> dict[str, Any]:
 @app.put("/api/memories/{memory_id}")
 def api_update_memory(memory_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     engine = _engine()
-    allowed = {"content", "category", "confidence", "tags"}
+    allowed = {
+        "content", "category", "confidence", "tags",
+        "user_id", "tenant_id", "valid_from", "valid_until",
+    }
     updates = {k: v for k, v in payload.items() if k in allowed}
     if not updates:
         return {"id": memory_id, "status": "unchanged"}
@@ -122,10 +135,20 @@ def api_delete_memory(memory_id: int) -> dict[str, Any]:
 def api_search(
     q: str = Query(..., description="Search query"),
     project: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+    at_time: str = "",
     limit: int = 20,
 ) -> dict[str, Any]:
     engine = _engine()
-    results = engine.search(q, project=project or None, limit=limit)
+    results = engine.search(
+        q,
+        project=project or None,
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+        at_time=at_time or None,
+        limit=limit,
+    )
     return {"query": q, "results": [_memory_to_dict(m) for m in results]}
 
 
@@ -136,11 +159,25 @@ def api_projects() -> dict[str, Any]:
 
 
 @app.get("/api/stats")
-def api_stats(project: str = "") -> dict[str, Any]:
+def api_stats(
+    project: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+) -> dict[str, Any]:
     engine = _engine()
-    data = engine.stats()
+    data = engine.stats(
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+    )
     if project:
-        data["project_memories"] = len(engine.recall(project=project, limit=10000))
+        data["project_memories"] = len(
+            engine.recall(
+                project=project,
+                limit=10000,
+                user_id=user_id or None,
+                tenant_id=tenant_id or None,
+            )
+        )
     return data
 
 
@@ -224,6 +261,10 @@ def _memory_to_dict(m: MemoryEntry) -> dict[str, Any]:
         "confidence": m.confidence,
         "source": m.source,
         "tags": m.tags,
+        "user_id": m.user_id,
+        "tenant_id": m.tenant_id,
+        "valid_from": m.valid_from,
+        "valid_until": m.valid_until,
     }
 
 

@@ -96,6 +96,9 @@ INDEX_HTML = """<!DOCTYPE html>
       <select id="project-select"><option value="">All projects</option></select>
       <input type="text" id="search-input" placeholder="Search memories...">
       <select id="category-filter"><option value="">All categories</option><option>fact</option><option>decision</option><option>action</option><option>preference</option><option>error</option></select>
+      <input type="text" id="user-filter" placeholder="User ID" style="width:100px">
+      <input type="text" id="tenant-filter" placeholder="Tenant ID" style="width:100px">
+      <input type="text" id="at-time-filter" placeholder="Valid at (ISO)" style="width:140px">
       <button onclick="loadData()">Load</button>
       <button onclick="exportJSON()">⬇ Export JSON</button>
       <button class="secondary" onclick="captureMemory()">+ Capture</button>
@@ -217,20 +220,30 @@ function renderMemories(memories) {
       <th onclick="toggleSort('category')">Category<span class="sort-indicator">${sortIcon('category')}</span></th>
       <th onclick="toggleSort('content')">Content<span class="sort-indicator">${sortIcon('content')}</span></th>
       <th onclick="toggleSort('source')">Source<span class="sort-indicator">${sortIcon('source')}</span></th>
-      <th onclick="toggleSort('confidence')">Confidence<span class="sort-indicator">${sortIcon('confidence')}</span></th>
+      <th onclick="toggleSort('confidence')">Conf<span class="sort-indicator">${sortIcon('confidence')}</span></th>
+      <th>User</th>
+      <th>Tenant</th>
+      <th>Valid From</th>
+      <th>Valid Until</th>
       <th onclick="toggleSort('timestamp')">Time<span class="sort-indicator">${sortIcon('timestamp')}</span></th>
       <th></th>
     </tr>`;
   for(const m of sorted){
+    const vf = m.valid_from ? m.valid_from.substring(0,10) : '-';
+    const vu = m.valid_until ? m.valid_until.substring(0,10) : '-';
     html+=`<tr>
       <td>#${m.id}</td>
       <td><span class="badge badge-${m.category}">${m.category}</span></td>
-      <td>${escapeHtml(m.content.substring(0,120))}${m.content.length>120?'...':''}<br><span class="confidence">${m.tags ? 'tags: ' + escapeHtml(m.tags) : ''}</span></td>
+      <td>${escapeHtml(m.content.substring(0,100))}${m.content.length>100?'...':''}<br><span class="confidence">${m.tags ? 'tags: ' + escapeHtml(m.tags) : ''}</span></td>
       <td>${escapeHtml(m.source||'-')}</td>
       <td>${(m.confidence||1).toFixed(2)}</td>
+      <td>${escapeHtml(m.user_id||'-')}</td>
+      <td>${escapeHtml(m.tenant_id||'-')}</td>
+      <td>${vf}</td>
+      <td>${vu}</td>
       <td>${(m.timestamp||'').replace('T',' ').substring(0,16)}</td>
       <td>
-        <button class="delete-btn" style="background:var(--accent);margin-right:.3rem;" onclick="editMemory(${m.id},'${escapeHtml(m.content).replace(/'/g,'&#39;')}','${m.category}',${m.confidence},'${escapeHtml(m.tags||'').replace(/'/g,'&#39;')}')">✎</button>
+        <button class="delete-btn" style="background:var(--accent);margin-right:.3rem;" onclick="editMemory(${m.id},'${escapeHtml(m.content).replace(/'/g,'&#39;')}','${m.category}',${m.confidence},'${escapeHtml(m.tags||'').replace(/'/g,'&#39;')}','${escapeHtml(m.user_id||'').replace(/'/g,'&#39;')}','${escapeHtml(m.tenant_id||'').replace(/'/g,'&#39;')}','${escapeHtml(m.valid_from||'').replace(/'/g,'&#39;')}','${escapeHtml(m.valid_until||'').replace(/'/g,'&#39;')}')">✎</button>
         <button class="delete-btn" onclick="deleteMemory(${m.id})">×</button>
       </td>
     </tr>`;
@@ -242,9 +255,20 @@ function renderMemories(memories) {
 async function loadMemories(project, keyword='', category='') {
   currentProject = project;
   document.getElementById('project-label').textContent = project || 'All projects';
+  const userId = document.getElementById('user-filter').value;
+  const tenantId = document.getElementById('tenant-filter').value;
+  const atTime = document.getElementById('at-time-filter').value;
   let url = '/api/memories?project='+encodeURIComponent(project);
   if(category) url += '&category='+encodeURIComponent(category);
-  if(keyword) url = '/api/search?project='+encodeURIComponent(project)+'&keyword='+encodeURIComponent(keyword);
+  if(userId) url += '&user_id='+encodeURIComponent(userId);
+  if(tenantId) url += '&tenant_id='+encodeURIComponent(tenantId);
+  if(atTime) url += '&at_time='+encodeURIComponent(atTime);
+  if(keyword) {
+    url = '/api/search?project='+encodeURIComponent(project)+'&keyword='+encodeURIComponent(keyword);
+    if(userId) url += '&user_id='+encodeURIComponent(userId);
+    if(tenantId) url += '&tenant_id='+encodeURIComponent(tenantId);
+    if(atTime) url += '&at_time='+encodeURIComponent(atTime);
+  }
   const data = await fetchJSON(url);
   const memories = data.memories || data.results || [];
   renderMemories(memories);
@@ -252,7 +276,7 @@ async function loadMemories(project, keyword='', category='') {
   renderStats(computeStats(memories));
 }
 
-async function editMemory(id, content, category, confidence, tags){
+async function editMemory(id, content, category, confidence, tags, userId, tenantId, validFrom, validUntil){
   const newContent = prompt('Content:', content);
   if(newContent === null) return;
   const newCategory = prompt('Category (fact/decision/action/preference/error):', category);
@@ -261,8 +285,19 @@ async function editMemory(id, content, category, confidence, tags){
   if(newConfidence === null) return;
   const newTags = prompt('Tags (comma-separated):', tags);
   if(newTags === null) return;
+  const newUserId = prompt('User ID:', userId);
+  if(newUserId === null) return;
+  const newTenantId = prompt('Tenant ID:', tenantId);
+  if(newTenantId === null) return;
+  const newValidFrom = prompt('Valid from (ISO or empty):', validFrom);
+  if(newValidFrom === null) return;
+  const newValidUntil = prompt('Valid until (ISO or empty):', validUntil);
+  if(newValidUntil === null) return;
 
-  const updates = {content: newContent, category: newCategory, confidence: parseFloat(newConfidence), tags: newTags};
+  const updates = {
+    content: newContent, category: newCategory, confidence: parseFloat(newConfidence), tags: newTags,
+    user_id: newUserId, tenant_id: newTenantId, valid_from: newValidFrom, valid_until: newValidUntil
+  };
   const resp = await fetch('/api/memories/'+id, {method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(updates)});
   const result = await resp.json();
   if(result.status === 'updated'){
@@ -296,7 +331,11 @@ async function captureMemory(){
   const p=document.getElementById('project-select').value || prompt('Project:','default'); if(!p) return;
   const content=prompt('Memory content:'); if(!content) return;
   const category=prompt('Category (fact/decision/action/preference/error):','fact')||'fact';
-  await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:p,content,category})});
+  const userId=prompt('User ID (optional):','')||'';
+  const tenantId=prompt('Tenant ID (optional):','')||'';
+  const validFrom=prompt('Valid from (ISO, optional):','')||'';
+  const validUntil=prompt('Valid until (ISO, optional):','')||'';
+  await fetch('/api/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:p,content,category,user_id:userId,tenant_id:tenantId,valid_from:validFrom,valid_until:validUntil})});
   loadData();
 }
 
@@ -328,11 +367,25 @@ def index() -> str:
 
 
 @app.get("/api/stats")
-def api_stats(project: str = "") -> dict[str, Any]:
+def api_stats(
+    project: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+) -> dict[str, Any]:
     engine = MemoryEngine()
-    data = engine.stats()
+    data = engine.stats(
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+    )
     if project:
-        data["project_memories"] = len(engine.recall(project=project, limit=10000))
+        data["project_memories"] = len(
+            engine.recall(
+                project=project,
+                limit=10000,
+                user_id=user_id or None,
+                tenant_id=tenant_id or None,
+            )
+        )
     return data
 
 
@@ -340,12 +393,18 @@ def api_stats(project: str = "") -> dict[str, Any]:
 def api_memories(
     project: str = "",
     category: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+    at_time: str = "",
     limit: int = 100000,
 ) -> dict[str, Any]:
     engine = MemoryEngine()
     memories = engine.recall(
         project=project or None,
         category=category or None,
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+        at_time=at_time or None,
         limit=limit,
     )
     # Sort by ID ascending for consistent ordering
@@ -361,6 +420,10 @@ def api_memories(
                 "tags": m.tags,
                 "timestamp": m.timestamp,
                 "session_id": m.session_id,
+                "user_id": m.user_id,
+                "tenant_id": m.tenant_id,
+                "valid_from": m.valid_from,
+                "valid_until": m.valid_until,
             }
             for m in memories
         ]
@@ -371,10 +434,20 @@ def api_memories(
 def api_search(
     project: str = "",
     keyword: str = "",
+    user_id: str = "",
+    tenant_id: str = "",
+    at_time: str = "",
     limit: int = 20,
 ) -> dict[str, Any]:
     engine = MemoryEngine()
-    results = engine.search(keyword, project=project or None, limit=limit)
+    results = engine.search(
+        keyword,
+        project=project or None,
+        user_id=user_id or None,
+        tenant_id=tenant_id or None,
+        at_time=at_time or None,
+        limit=limit,
+    )
     # Sort by ID ascending
     results = sorted(results, key=lambda m: m.id)
     return {
@@ -387,6 +460,10 @@ def api_search(
                 "source": m.source,
                 "tags": m.tags,
                 "timestamp": m.timestamp,
+                "user_id": m.user_id,
+                "tenant_id": m.tenant_id,
+                "valid_from": m.valid_from,
+                "valid_until": m.valid_until,
             }
             for m in results
         ]
@@ -408,6 +485,10 @@ def api_capture(payload: dict[str, Any]) -> dict[str, Any]:
         confidence=payload.get("confidence", 1.0),
         source=payload.get("source", "dashboard"),
         tags=payload.get("tags", ""),
+        user_id=payload.get("user_id", ""),
+        tenant_id=payload.get("tenant_id", ""),
+        valid_from=payload.get("valid_from", ""),
+        valid_until=payload.get("valid_until", ""),
     )
     memory_id = engine.store(entry)
     return {"status": "stored", "memory_id": memory_id}
@@ -423,7 +504,10 @@ def api_delete_memory(memory_id: int) -> dict[str, Any]:
 @app.patch("/api/memories/{memory_id}")
 def api_update_memory(memory_id: int, payload: dict[str, Any]) -> dict[str, Any]:
     engine = MemoryEngine()
-    allowed = {"content", "category", "confidence", "tags"}
+    allowed = {
+        "content", "category", "confidence", "tags",
+        "user_id", "tenant_id", "valid_from", "valid_until",
+    }
     updates = {k: v for k, v in payload.items() if k in allowed}
     if not updates:
         return {"status": "no_changes", "memory_id": memory_id}
